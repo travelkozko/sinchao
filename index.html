@@ -201,6 +201,36 @@ a{color:var(--ink-soft)}
 .say .ru{margin-top:4px;font-size:17px}
 .say .hint{font-size:13px;font-style:italic;color:var(--ink-soft);text-align:center}
 .speak{align-self:center;height:50px;padding:0 22px;border:1.5px solid var(--ink);border-radius:25px;background:var(--card);display:flex;align-items:center;gap:8px;font-family:Caveat,cursive;font-weight:700;font-size:24px}
+
+/* ---------- Карта мест ---------- */
+#mapScr{background:#EFE6D2}
+#map{position:absolute;inset:0}
+#map canvas{filter:sepia(.28) saturate(.85) brightness(1.02)}
+.map-top{position:absolute;left:0;right:0;top:0;z-index:3;padding:calc(var(--st) + 8px) 0 8px;background:linear-gradient(to bottom, rgba(250,230,200,.96) 70%, rgba(250,230,200,0))}
+.map-top .chips{margin:0;padding:2px 14px 6px}
+.map-top .chip{background:rgba(255,252,244,.9)}
+.map-top .chip[aria-pressed="true"]{background:var(--ink)}
+.locate{position:absolute;right:14px;z-index:3;bottom:calc(var(--sb) + 22px);width:48px;height:48px;border-radius:24px;border:1.5px solid var(--ink);background:var(--card);display:flex;align-items:center;justify-content:center;box-shadow:2px 3px 0 rgba(43,42,40,.18)}
+.pin{width:30px;height:38px;cursor:pointer}
+.pin svg{display:block;filter:drop-shadow(1px 2px 0 rgba(43,42,40,.25))}
+.pin.sel svg{transform:scale(1.25);transform-origin:50% 100%}
+.me{width:16px;height:16px;border-radius:8px;background:#2F6B72;border:3px solid #fff;box-shadow:0 0 0 6px rgba(47,107,114,.25)}
+.sheet{position:absolute;left:10px;right:10px;z-index:4;bottom:calc(var(--sb) + 10px);max-width:480px;margin:0 auto;max-height:62vh;overflow-y:auto;background:var(--card);border:1.5px solid var(--ink);box-shadow:3px 4px 0 rgba(43,42,40,.2);padding:14px 16px 14px;transform:rotate(-.4deg)}
+.sheet .x{position:absolute;right:6px;top:6px;width:44px;height:44px;border:0;background:transparent;display:flex;align-items:center;justify-content:center}
+.sheet h3{margin:0 40px 0 0;font-family:Caveat,cursive;font-weight:700;font-size:32px;line-height:1.05}
+.sheet .vi{font-size:14px;color:var(--ink-soft);margin-top:2px}
+.sheet .meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:#4A463F}
+.badge{display:inline-block;font-size:12px;font-style:italic;padding:2px 8px;border:1.5px solid var(--clay);color:var(--clay);border-radius:12px}
+.badge.trav{border-color:#2F6B72;color:#2F6B72}
+.sheet .short{margin:10px 0 0;font-size:15px;line-height:1.45}
+.tipnote{margin:12px 0 0;padding:10px 12px;background:var(--note);transform:rotate(.6deg);box-shadow:2px 2px 0 rgba(43,42,40,.15)}
+.tipnote small{display:block;font-size:12px;font-style:italic;color:#4A463F}
+.tipnote span{font-family:Caveat,cursive;font-weight:700;font-size:22px;line-height:1.2}
+.sheet .acts{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+.sheet .acts button{min-height:44px;padding:0 14px;border:1.5px solid var(--ink);border-radius:8px;background:transparent;font-family:Caveat,cursive;font-weight:700;font-size:21px}
+.map-empty{position:absolute;left:16px;right:16px;z-index:3;bottom:calc(var(--sb) + 84px);max-width:420px;margin:0 auto;padding:12px 14px;background:var(--note);box-shadow:2px 3px 0 rgba(43,42,40,.18);transform:rotate(-.8deg);font-size:14px;line-height:1.45}
+.map-fail{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:30px;text-align:center;font-style:italic;color:var(--ink-soft)}
+.maplibregl-ctrl-attrib{font-size:10px}
 </style>
 </head>
 <body>
@@ -306,6 +336,17 @@ a{color:var(--ink-soft)}
   </nav>
 </section>
 
+<!-- ===== Карта мест ===== -->
+<section id="mapScr" class="screen" hidden aria-label="Карта мест">
+  <div id="map"></div>
+  <div class="map-top"><div class="chips" id="mapChips" role="group" aria-label="Категории"></div></div>
+  <button class="locate" type="button" data-act="locate" aria-label="Показать, где я">
+    <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+  </button>
+  <div class="map-empty" id="mapEmpty" hidden>Проверенные места появятся здесь совсем скоро — мы как раз обходим Нячанг. А пока на карте видно пляжи, кафе и улицы.</div>
+  <div class="sheet" id="placeSheet" hidden role="dialog" aria-label="Место"></div>
+</section>
+
 <!-- ===== Внутренний экран (содержимое подставляется) ===== -->
 <section id="page" class="screen lined page" hidden>
   <div class="scroll">
@@ -316,7 +357,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611011830';
+  var BUILD = '202611011900';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -368,11 +409,11 @@ a{color:var(--ink-soft)}
   // ================= Навигация =================
   // стек экранов: заставка → главный → внутренний; «Назад» — родная кнопка Telegram
   var stack = ['splash'];
-  var screens = { splash: splash, home: $('home'), page: $('page') };
+  var screens = { splash: splash, home: $('home'), page: $('page'), map: $('mapScr') };
 
   function render(){
     var top = stack[stack.length - 1];
-    var screenId = top === 'splash' || top === 'home' ? top : 'page';
+    var screenId = top === 'splash' || top === 'home' || top === 'map' ? top : 'page';
     Object.keys(screens).forEach(function(k){ screens[k].hidden = (k !== screenId); });
     if (screenId === 'page') renderPage(top);
     if (top === 'splash') { if (started) loopV.play().catch(function(){}); }
@@ -380,6 +421,7 @@ a{color:var(--ink-soft)}
     var canBack = stack.length > 1;
     if (inTg) { try { canBack ? tg.BackButton.show() : tg.BackButton.hide(); } catch(e){} }
     if (top === 'home') loadToday();
+    if (top === 'map') openMap();
     maybeReload();
   }
   function go(id){
@@ -431,7 +473,7 @@ a{color:var(--ink-soft)}
 
   function renderPage(id){
     var body = $('pageBody'), html = '';
-    if (PAGES[id] && id !== 'phrasebook' && id !== 'practical') {
+    if (PAGES[id] && id !== 'phrasebook' && id !== 'practical' && id !== 'map') {
       var p = PAGES[id];
       html = '<h2>' + esc(p.title) + '</h2><p>' + esc(p.text) + '</p>' +
              '<div class="soon">Раздел готовим. Загляните чуть позже — новые разделы появятся здесь сами, ничего обновлять не нужно.</div>';
@@ -464,6 +506,11 @@ a{color:var(--ink-soft)}
           }).join('') +
           '<p class="pb-note">' + esc(PR.disclaimer) + '</p>';
       }
+    } else if (id === 'driver') {
+      var d = driverText || {};
+      html = '<div class="say"><div class="card"><div class="vi" lang="vi">' + esc(d.nameVi || '') + '</div>' +
+        '<div class="ru" style="margin-top:14px">' + esc(d.name || '') + '</div></div>' +
+        '<div class="hint">покажите экран водителю · ' + (d.lat ? d.lat.toFixed(5) + ', ' + d.lon.toFixed(5) : '') + '</div></div>';
     } else if (/^say:/.test(id)) {
       var ph = ALL[+id.slice(4)];
       if (!ph) { html = '<p class="empty">Загружаем фразы…</p>'; }
@@ -653,6 +700,118 @@ a{color:var(--ink-soft)}
     var v = viVoice(); if (!v) return;
     try { speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(text); u.voice = v; u.lang = v.lang; u.rate = 0.8; speechSynthesis.speak(u); } catch(e){}
   }
+
+  // ================= Карта мест =================
+  // подложка OpenFreeMap (данные OpenStreetMap, без ключей), места — из app/data/places.json
+  var CAT_LABEL = { 'еда':'Еда','кофе':'Кофе','бар':'Бары','пляж':'Пляжи','вид':'Виды','рынок':'Рынки','смотреть':'Смотреть','развлечения':'Развлечения','услуги':'Услуги' };
+  var MAPLIBRE = 'https://cdn.jsdelivr.net/npm/maplibre-gl@5/dist/maplibre-gl';
+  var map = null, mapLoading = false, places = null, markers = [], mapCat = 'all', selId = null, meMarker = null;
+
+  function loadScript(src){ return new Promise(function(res, rej){ var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+  function loadCss(href){ var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l); }
+
+  function loadPlaces(){
+    if (places) return Promise.resolve(places);
+    var hour = Math.floor(Date.now() / 36e5);              // данные из таблицы обновляются раз в час
+    return getJSON('data/places.json?h=' + hour, 10000).then(function(d){
+      places = (d.places || []).filter(function(p){ return p.city === CITY.id; });
+      store('sc_places_' + CITY.id, places);
+      return places;
+    }).catch(function(){ places = store('sc_places_' + CITY.id) || []; return places; });
+  }
+
+  function openMap(){
+    if (map) { setTimeout(function(){ map.resize(); }, 50); return; }
+    if (mapLoading) return;
+    mapLoading = true;
+    loadCss(MAPLIBRE + '.css');
+    Promise.all([loadScript(MAPLIBRE + '.js'), loadPlaces()]).then(function(){
+      map = new maplibregl.Map({
+        container: 'map', style: 'https://tiles.openfreemap.org/styles/liberty',
+        center: [CITY.lon, CITY.lat], zoom: 13, attributionControl: { compact: true },
+        dragRotate: false, pitchWithRotate: false
+      });
+      map.touchZoomRotate.disableRotation();
+      map.on('click', function(e){ if (!e.originalEvent.target.closest('.pin')) closeSheet(); });
+      drawChips(); drawMarkers();
+      $('mapEmpty').hidden = places.length > 0;
+    }).catch(function(){
+      mapLoading = false;
+      $('map').innerHTML = '<div class="map-fail">Карта не загрузилась — нужен интернет. Попробуйте ещё раз чуть позже.</div>';
+    });
+  }
+
+  function drawChips(){
+    var cats = [];
+    places.forEach(function(p){ if (cats.indexOf(p.cat) < 0) cats.push(p.cat); });
+    var box = $('mapChips');
+    if (cats.length < 2) { box.parentNode.hidden = true; return; }
+    box.innerHTML = '<button class="chip" type="button" data-mcat="all" aria-pressed="' + (mapCat === 'all') + '">Все</button>' +
+      cats.map(function(c){ return '<button class="chip" type="button" data-mcat="' + esc(c) + '" aria-pressed="' + (mapCat === c) + '">' + esc(CAT_LABEL[c] || c) + '</button>'; }).join('');
+  }
+
+  function pinSvg(p){
+    var fill = p.source === 'traveler' ? '#2F6B72' : '#C0533A';
+    return '<svg aria-hidden="true" width="30" height="38" viewBox="0 0 30 38"><path d="M15 37C15 37 3 23.5 3 14.5a12 12 0 0 1 24 0C27 23.5 15 37 15 37z" fill="' + fill + '" stroke="#2B2A28" stroke-width="1.5"/><circle cx="15" cy="14.5" r="4.5" fill="#FFFCF4"/></svg>';
+  }
+  function drawMarkers(){
+    markers.forEach(function(m){ m.remove(); }); markers = [];
+    places.forEach(function(p){
+      if (mapCat !== 'all' && p.cat !== mapCat) return;
+      var el = document.createElement('button');
+      el.type = 'button'; el.className = 'pin' + (p.id === selId ? ' sel' : '');
+      el.setAttribute('aria-label', p.name); el.style.border = '0'; el.style.background = 'transparent'; el.style.padding = '0';
+      el.innerHTML = pinSvg(p);
+      el.addEventListener('click', function(ev){ ev.stopPropagation(); openPlace(p.id); });
+      markers.push(new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat([p.lon, p.lat]).addTo(map));
+    });
+  }
+
+  function openPlace(id){
+    var p = places.filter(function(x){ return x.id === id; })[0];
+    if (!p) return;
+    haptic('light'); selId = id; drawMarkers();
+    map.easeTo({ center: [p.lon, p.lat], offset: [0, -120], duration: 400 });
+    var meta = [esc(CAT_LABEL[p.cat] || p.cat)];
+    if (p.price) meta.push(esc(p.price));
+    if (p.hours) meta.push(esc(p.hours));
+    $('placeSheet').innerHTML =
+      '<button class="x" type="button" data-act="close-place" aria-label="Закрыть"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+      '<h3>' + esc(p.name) + '</h3>' + (p.nameVi ? '<div class="vi" lang="vi">' + esc(p.nameVi) + '</div>' : '') +
+      '<div class="meta"><span>' + meta.join(' · ') + '</span>' +
+        (p.source === 'traveler' ? '<span class="badge trav">от путешественников</span>' : '<span class="badge">проверено Синь Чао' + (p.checked ? ' · ' + esc(p.checked) : '') + '</span>') + '</div>' +
+      '<p class="short">' + esc(p.short) + '</p>' +
+      (p.tip ? '<div class="tipnote"><small>совет</small><span>' + esc(p.tip) + '</span></div>' : '') +
+      '<div class="acts"><button type="button" data-act="route">Маршрут</button>' +
+        (p.nameVi ? '<button type="button" data-act="show-driver">Показать таксисту</button>' : '') + '</div>';
+    $('placeSheet').hidden = false;
+    $('placeSheet').scrollTop = 0;
+  }
+  function closeSheet(){ selId = null; $('placeSheet').hidden = true; if (map) drawMarkers(); }
+
+  function locate(){
+    if (!navigator.geolocation) return;
+    haptic('light');
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var ll = [pos.coords.longitude, pos.coords.latitude];
+      if (!meMarker) { var el = document.createElement('div'); el.className = 'me'; meMarker = new maplibregl.Marker({ element: el }).setLngLat(ll).addTo(map); }
+      else meMarker.setLngLat(ll);
+      map.easeTo({ center: ll, zoom: Math.max(map.getZoom(), 15), duration: 500 });
+    }, function(){}, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+  }
+
+  document.addEventListener('click', function(e){
+    var c = e.target.closest('[data-mcat]');
+    if (c) { haptic('light'); mapCat = c.getAttribute('data-mcat'); closeSheet(); drawChips(); drawMarkers(); return; }
+    var a = e.target.closest('[data-act]'); if (!a) return;
+    var act = a.getAttribute('data-act');
+    var p = places && places.filter(function(x){ return x.id === selId; })[0];
+    if (act === 'close-place') closeSheet();
+    if (act === 'locate') locate();
+    if (act === 'route' && p) openLink('https://www.google.com/maps/dir/?api=1&destination=' + p.lat + ',' + p.lon);
+    if (act === 'show-driver' && p) { driverText = p; go('driver'); }
+  });
+  var driverText = null;
 
   // ================= Автообновление =================
   // version.txt хранит номер сборки; перезагружаемся только в безопасный момент — на заставке или на главном,
