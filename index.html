@@ -246,6 +246,33 @@ a{color:var(--ink-soft)}
 .map-empty{position:absolute;left:16px;right:16px;z-index:3;bottom:calc(var(--sb) + 84px);max-width:420px;margin:0 auto;padding:12px 14px;background:var(--note);box-shadow:2px 3px 0 rgba(43,42,40,.18);transform:rotate(-.8deg);font-size:14px;line-height:1.45}
 .map-fail{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:30px;text-align:center;font-style:italic;color:var(--ink-soft)}
 .maplibregl-ctrl-attrib{font-size:10px}
+
+/* ---------- Еда ---------- */
+.fd-h{margin:20px 0 4px;font-family:Caveat,cursive;font-weight:700;font-size:28px;color:var(--clay)}
+.fd-row{width:100%;min-height:84px;border:0;border-bottom:1.5px dashed #8C8475;background:transparent;display:flex;align-items:center;gap:14px;padding:8px 0;text-align:left}
+.fd-ill{flex:none;width:68px;height:68px;border-radius:50%;background:#F3E3C6;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.fd-ill img{width:100%;height:100%;object-fit:cover}
+.fd-t{flex:1;min-width:0}
+.fd-t b{display:block;font-family:Caveat,cursive;font-weight:700;font-size:25px;line-height:1.05}
+.fd-t span{display:block;font-size:14px}
+.fd-t small{display:block;font-size:13px;color:var(--ink-soft);font-style:italic}
+.chili{display:inline-flex;gap:1px;vertical-align:-3px}
+.fd-top{display:flex;gap:14px;align-items:center;margin-bottom:6px}
+.fd-top .fd-ill{width:96px;height:96px}
+.fd-top h2{margin:0;font-size:40px}
+.fd-vi{font-size:22px;font-weight:600;margin-top:2px}
+.fd-pron{font-family:Caveat,cursive;font-weight:700;font-size:24px;color:var(--clay)}
+.fd-meta{margin:12px 0 0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;align-items:center}
+.fd-photo{margin:16px 0 0;background:var(--card);border:1.5px solid var(--ink);padding:8px 8px 6px;transform:rotate(.6deg);box-shadow:2px 3px 0 rgba(43,42,40,.15)}
+.fd-photo img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.fd-photo small{display:block;margin-top:4px;font-size:10px;color:var(--ink-soft);font-style:italic}
+.fd-photo small a{color:var(--ink-soft)}
+.fd-contains{margin:14px 0 0;font-size:14px;line-height:1.5}
+.fd-acts{margin-top:16px;display:flex;flex-wrap:wrap;gap:10px}
+.fd-acts button{min-height:48px;padding:0 16px;border:1.5px solid var(--ink);border-radius:8px;background:var(--card);font-family:Caveat,cursive;font-weight:700;font-size:23px}
+.toggle{display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px}
+.toggle input{width:22px;height:22px;accent-color:var(--clay)}
+.ord-extra{margin-top:10px;font-size:clamp(24px, 7vw, 32px);font-weight:600;color:var(--clay)}
 </style>
 </head>
 <body>
@@ -372,7 +399,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611012050';
+  var BUILD = '202611012110';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -442,6 +469,7 @@ a{color:var(--ink-soft)}
   function go(id){
     haptic('light');
     if (stack[stack.length - 1] === 'phrasebook') pbState.scroll = $('page').querySelector('.scroll').scrollTop;
+    if (stack[stack.length - 1] === 'food') foodScroll = $('page').querySelector('.scroll').scrollTop;
     stack.push(id); render();
   }
   function back(){ if (stack.length < 2) return; haptic('light'); stack.pop(); render(); }
@@ -488,7 +516,7 @@ a{color:var(--ink-soft)}
 
   function renderPage(id){
     var body = $('pageBody'), html = '';
-    if (PAGES[id] && id !== 'phrasebook' && id !== 'practical' && id !== 'map') {
+    if (PAGES[id] && id !== 'phrasebook' && id !== 'practical' && id !== 'map' && id !== 'food') {
       var p = PAGES[id];
       html = '<h2>' + esc(p.title) + '</h2><p>' + esc(p.text) + '</p>' +
              '<div class="soon">Раздел готовим. Загляните чуть позже — новые разделы появятся здесь сами, ничего обновлять не нужно.</div>';
@@ -534,6 +562,49 @@ a{color:var(--ink-soft)}
           (d.lat ? '<button type="button" class="speak" data-act="drv-maps">Открыть в Google Maps</button>' : '') +
           '<button type="button" class="speak" data-act="drv-copy">Скопировать адрес</button></div>' +
         '<div class="hint">покажите экран водителю</div></div>';
+    } else if (id === 'food') {
+      if (!FOOD) { html = '<h2>Еда</h2><p class="empty">Загружаем…</p>'; loadFood(); }
+      else {
+        html = '<h2>Еда</h2><p>Что попробовать и как это заказать. Нажмите на блюдо — там произношение и кнопка «Показать официанту».</p>' +
+          FOOD.groups.map(function(g){
+            var rows = FOOD.dishes.filter(function(d){ return d.group === g.id; }).map(function(d){
+              return '<button class="fd-row" type="button" data-go="dish:' + d.id + '">' + illHtml(d) +
+                '<span class="fd-t"><b>' + esc(d.ru) + '</b><span lang="vi">' + esc(d.vi) + '</span>' +
+                '<small>«' + esc(d.pron) + '»' + (d.spicy ? '<span style="white-space:nowrap"> · ' + chili(d.spicy) + '</span>' : '') + '</small></span></button>';
+            }).join('');
+            return rows ? '<div class="fd-h">' + esc(g.title) + '</div>' + rows : '';
+          }).join('') +
+          '<p class="pb-note">' + esc(FOOD.spicyNote) + ' ' + esc(FOOD.note) + '</p>';
+        body.innerHTML = html + fallbackBack;
+        body.parentNode.scrollTop = foodScroll || 0;
+        return;
+      }
+    } else if (/^dish:/.test(id)) {
+      var d = FOOD && FOOD.dishes.filter(function(x){ return x.id === id.slice(5); })[0];
+      if (!d) { html = '<p class="empty">Загружаем…</p>'; loadFood(); }
+      else {
+        html = '<div class="fd-top">' + illHtml(d) + '<div><h2>' + esc(d.ru) + '</h2></div></div>' +
+          '<div class="fd-vi" lang="vi">' + esc(d.vi) + '</div><div class="fd-pron">«' + esc(d.pron) + '»</div>' +
+          '<div class="fd-meta"><span>' + (d.spicy ? chili(d.spicy) + ' ' + ['', 'чуть остро', 'остро', 'очень остро'][d.spicy] : 'не остро') + '</span>' +
+            '<span>' + esc(d.price) + ' · ' + ['', 'недорого', 'средне', 'дорого'][d.price.length] + '</span></div>' +
+          '<p style="margin-top:12px">' + esc(d.short) + '</p>' +
+          (d.contains && d.contains.length ? '<p class="fd-contains"><b>Обычно в составе:</b> ' + esc(d.contains.join(', ')) + '.<br><small style="color:var(--ink-soft)">Рецепт в каждом кафе свой — при аллергии спросите.</small></p>' : '') +
+          (d.photo ? '<figure class="fd-photo" style="margin-left:0;margin-right:0"><img src="' + esc(d.photo) + '" alt="' + esc(d.ru) + ' — фото" loading="lazy" decoding="async">' +
+            '<small>Фото: ' + (d.creditUrl ? '<a href="#" data-link="' + esc(d.creditUrl) + '">' + esc(d.credit) + '</a>' : esc(d.credit)) + '</small></figure>' : '') +
+          '<div class="fd-acts"><button type="button" data-go="order:' + d.id + '">Показать официанту</button>' +
+            '<button type="button" data-act="food-near">Где поесть рядом</button></div>';
+      }
+    } else if (/^order:/.test(id)) {
+      var o = FOOD && FOOD.dishes.filter(function(x){ return x.id === id.slice(6); })[0];
+      if (o) {
+        html = '<div class="say"><div class="card">' +
+          '<div class="drv-label"><span lang="vi">Cho tôi một</span> <i>«чо той мот» — дайте мне одну порцию</i></div>' +
+          '<div class="vi" lang="vi">' + esc(o.vi) + '</div>' +
+          '<div class="ord-extra" lang="vi" id="ordExtra"' + (orderNoSpicy ? '' : ' hidden') + '>Không cay</div>' +
+          '<div class="ru" style="margin-top:12px">' + esc(o.ru) + (orderNoSpicy ? ', без острого' : '') + '</div></div>' +
+          '<label class="toggle"><input type="checkbox" id="ordNoSpicy"' + (orderNoSpicy ? ' checked' : '') + '> без острого — «không cay», «хонг кай»</label>' +
+          '<div class="hint">покажите экран официанту</div></div>';
+      }
     } else if (/^say:/.test(id)) {
       var ph = ALL[+id.slice(4)];
       if (!ph) { html = '<p class="empty">Загружаем фразы…</p>'; }
@@ -913,6 +984,37 @@ a{color:var(--ink-soft)}
     }
   });
   var driverText = null;
+
+  // ================= Еда =================
+  var FOOD = null, foodLoading = false, foodScroll = 0, orderNoSpicy = false;
+  function loadFood(){
+    if (FOOD || foodLoading) return;
+    foodLoading = true;
+    getJSON('data/food.json' + B + '&h=' + Math.floor(Date.now() / 36e5), 10000).then(function(d){
+      FOOD = d; foodLoading = false;
+      var t = stack[stack.length - 1];
+      if (t === 'food' || /^(dish|order):/.test(t)) renderPage(t);
+    }).catch(function(){
+      foodLoading = false;
+      var t = stack[stack.length - 1];
+      if (t === 'food' || /^(dish|order):/.test(t)) $('pageBody').innerHTML = '<h2>Еда</h2><p class="empty">Нет связи. Откройте раздел, когда появится интернет.</p>' + fallbackBack;
+    });
+  }
+  function chili(n){
+    var one = '<svg aria-hidden="true" width="14" height="16" viewBox="0 0 14 16"><path d="M9 3c-1-2 1-3 2-2M9 3c2 1 3 3 2 6-1 4-5 6-9 6 3-2 4-5 4-8 0-2 1-4 3-4z" fill="#C0533A" stroke="#2B2A28" stroke-width="1"/></svg>';
+    return '<span class="chili" role="img" aria-label="острота ' + n + ' из 3">' + new Array(n + 1).join(one) + '</span>';
+  }
+  function illHtml(d){
+    return '<span class="fd-ill" aria-hidden="true">' + (d.illus ? '<img src="' + esc(d.illus) + '" alt="" loading="lazy" decoding="async">' :
+      '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C0533A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M9 7l3-4M14 7l2-3"/></svg>') + '</span>';
+  }
+  document.addEventListener('change', function(e){
+    if (e.target.id === 'ordNoSpicy') { orderNoSpicy = e.target.checked; haptic('light'); renderPage(stack[stack.length - 1]); }
+  });
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('[data-act="food-near"]');
+    if (a) { mapCat = 'еда'; stack.push('map'); haptic('light'); render(); setTimeout(function(){ if (map) { closeSheet(); drawChips(); drawMarkers(); filterOsm(); } }, 300); }
+  });
 
   // ================= Автообновление =================
   // version.txt хранит номер сборки; перезагружаемся только в безопасный момент — на заставке или на главном,
