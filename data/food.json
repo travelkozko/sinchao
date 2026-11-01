@@ -2,55 +2,276 @@
   "note": "Рецепт в каждом кафе свой. Состав — типичный, а не гарантированный: при аллергии обязательно спросите. Нужные фразы — в разговорнике, тема «Кафе и еда».",
   "spicyNote": "Острота — как обычно подают. Во Вьетнаме часто кладут перец и соусы отдельно, чтобы каждый добавил сам.",
   "groups": [
-    { "id": "local", "title": "Нячанг и побережье" },
-    { "id": "classic", "title": "Классика по всей стране" },
-    { "id": "sweet", "title": "Сладкое и кофе" }
+    {
+      "id": "local",
+      "title": "Нячанг и побережье"
+    },
+    {
+      "id": "classic",
+      "title": "Классика по всей стране"
+    },
+    {
+      "id": "sweet",
+      "title": "Сладкое и кофе"
+    }
   ],
   "dishes": [
-    { "id": "bun-cha-ca", "group": "local", "vi": "Bún chả cá", "pron": "бун ча ка", "ru": "Суп с рыбными котлетками",
+    {
+      "id": "bun-cha-ca",
+      "group": "local",
+      "vi": "Bún chả cá",
+      "pron": "бун ча ка",
+      "ru": "Суп с рыбными котлетками",
       "short": "Главное блюдо Нячанга: рисовая лапша в прозрачном бульоне с жареными и паровыми рыбными котлетками, иногда с кусочками медузы. Едят с утра.",
-      "spicy": 1, "contains": ["рыба", "рыбный соус"], "price": "₫" },
-    { "id": "nem-nuong", "group": "local", "vi": "Nem nướng Ninh Hòa", "pron": "нем ныонг нинь хоа", "ru": "Жареные свиные колбаски",
+      "spicy": 1,
+      "contains": [
+        "рыба",
+        "рыбный соус"
+      ],
+      "price": "₫",
+      "photo": "media/places/bun-cha-ca-photo.jpg?v=6b22ddb8",
+      "credit": "Everyday English, CC BY-SA 4.0",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Bun_cha_ca.jpg"
+    },
+    {
+      "id": "nem-nuong",
+      "group": "local",
+      "vi": "Nem nướng Ninh Hòa",
+      "pron": "нем ныонг нинь хоа",
+      "ru": "Жареные свиные колбаски",
       "short": "Колбаски на гриле, которые сам заворачиваешь в рисовую бумагу с зеленью, огурцом и хрустящей рисовой корочкой, и макаешь в густой соус.",
-      "spicy": 0, "contains": ["свинина", "арахис в соусе"], "price": "₫" },
-    { "id": "banh-can", "group": "local", "vi": "Bánh căn", "pron": "бань кан", "ru": "Рисовые оладушки",
+      "spicy": 0,
+      "contains": [
+        "свинина",
+        "арахис в соусе"
+      ],
+      "price": "₫",
+      "photo": "media/places/nem-nuong-photo.jpg?v=842cfce4",
+      "credit": "Phương Huy, CC BY-SA 4.0",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:B%C3%A1nh_h%E1%BB%8Fi_nem_n%C6%B0%E1%BB%9Bng_%C4%83n_v%E1%BB%9Bi_b%C3%A1nh_tr%C3%A1ng_th%C3%A1ng_6_n%C4%83m_2018_(1).jpg"
+    },
+    {
+      "id": "banh-can",
+      "group": "local",
+      "vi": "Bánh căn",
+      "pron": "бань кан",
+      "ru": "Рисовые оладушки",
       "short": "Маленькие хрустящие оладьи из рисового теста, которые пекут в глиняных формочках прямо при вас — с перепелиным яйцом, креветкой или кальмаром.",
-      "spicy": 1, "contains": ["яйцо", "креветки или кальмар", "рыбный соус"], "price": "₫" },
-    { "id": "bun-sua", "group": "local", "vi": "Bún sứa", "pron": "бун сыа", "ru": "Суп с медузой",
+      "spicy": 1,
+      "contains": [
+        "яйцо",
+        "креветки или кальмар",
+        "рыбный соус"
+      ],
+      "price": "₫",
+      "photo": "media/places/banh-can-photo.jpg?v=f4f53e22",
+      "credit": "Saigon Time, CC0",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:B%C3%A1nh_c%C4%83n_in_phan_rang,_vietnam.jpg"
+    },
+    {
+      "id": "bun-sua",
+      "group": "local",
+      "vi": "Bún sứa",
+      "pron": "бун сыа",
+      "ru": "Суп с медузой",
       "short": "Лапша в лёгком бульоне с хрустящими полосками медузы и рыбными котлетками — местный деликатес побережья.",
-      "spicy": 1, "contains": ["медуза", "рыба", "рыбный соус"], "price": "₫" },
-    { "id": "hai-san-nuong", "group": "local", "vi": "Hải sản nướng", "pron": "хай сан ныонг", "ru": "Морепродукты на гриле",
+      "spicy": 1,
+      "contains": [
+        "медуза",
+        "рыба",
+        "рыбный соус"
+      ],
+      "price": "₫"
+    },
+    {
+      "id": "hai-san-nuong",
+      "group": "local",
+      "vi": "Hải sản nướng",
+      "pron": "хай сан ныонг",
+      "ru": "Морепродукты на гриле",
       "short": "Креветки, кальмары, гребешки и моллюски, которые жарят на углях у вас на глазах. Цену обычно считают по весу — уточняйте до заказа.",
-      "spicy": 1, "contains": ["морепродукты", "арахис и зелёный лук на гребешках"], "price": "₫₫" },
-    { "id": "pho", "group": "classic", "vi": "Phở bò", "pron": "фо бо", "ru": "Фо с говядиной",
+      "spicy": 1,
+      "contains": [
+        "морепродукты",
+        "арахис и зелёный лук на гребешках"
+      ],
+      "price": "₫₫"
+    },
+    {
+      "id": "pho",
+      "group": "classic",
+      "vi": "Phở bò",
+      "pron": "фо бо",
+      "ru": "Фо с говядиной",
       "short": "Самый известный вьетнамский суп: рисовая лапша в ароматном говяжьем бульоне с бадьяном и корицей. Зелень, лайм и перец добавляют по вкусу.",
-      "spicy": 0, "contains": ["говядина", "рыбный соус"], "price": "₫" },
-    { "id": "banh-mi", "group": "classic", "vi": "Bánh mì", "pron": "бань ми", "ru": "Вьетнамский багет",
+      "spicy": 0,
+      "contains": [
+        "говядина",
+        "рыбный соус"
+      ],
+      "price": "₫",
+      "photo": "media/places/pho-photo.jpg?v=a6d90e14",
+      "credit": "Andy Li, CC0",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Beef_Pho_(M)_-_Milk_No_Sugar.jpg"
+    },
+    {
+      "id": "banh-mi",
+      "group": "classic",
+      "vi": "Bánh mì",
+      "pron": "бань ми",
+      "ru": "Вьетнамский багет",
       "short": "Хрустящий лёгкий багет с паштетом, мясом или яйцом, маринованными овощами, огурцом и кинзой. Перекус на ходу за копейки.",
-      "spicy": 1, "contains": ["глютен", "свинина или яйцо", "паштет"], "price": "₫" },
-    { "id": "bun-cha", "group": "classic", "vi": "Bún chả", "pron": "бун ча", "ru": "Лапша с жареной свининой",
+      "spicy": 1,
+      "contains": [
+        "глютен",
+        "свинина или яйцо",
+        "паштет"
+      ],
+      "price": "₫",
+      "photo": "media/places/banh-mi-photo.jpg?v=67c76e9b",
+      "credit": "Stu Spivack, CC BY-SA 2.0",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:B%C3%A1nh_m%C3%AC.jpg"
+    },
+    {
+      "id": "bun-cha",
+      "group": "classic",
+      "vi": "Bún chả",
+      "pron": "бун ча",
+      "ru": "Лапша с жареной свининой",
       "short": "Свиные котлетки и кусочки мяса с гриля в кисло-сладком соусе, к ним холодная рисовая лапша и тарелка зелени.",
-      "spicy": 0, "contains": ["свинина", "рыбный соус"], "price": "₫" },
-    { "id": "banh-xeo", "group": "classic", "vi": "Bánh xèo", "pron": "бань сэо", "ru": "Хрустящий блин",
+      "spicy": 0,
+      "contains": [
+        "свинина",
+        "рыбный соус"
+      ],
+      "price": "₫",
+      "photo": "media/places/bun-cha-photo.jpg?v=072ce7d4",
+      "credit": "Valentin Orange, CC BY-SA 4.0",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Bun-cha-hanoi.jpg"
+    },
+    {
+      "id": "banh-xeo",
+      "group": "classic",
+      "vi": "Bánh xèo",
+      "pron": "бань сэо",
+      "ru": "Хрустящий блин",
       "short": "Тонкий жёлтый блин из рисовой муки с куркумой, внутри креветки, свинина и ростки сои. Кусочки заворачивают в зелень и макают в соус.",
-      "spicy": 0, "contains": ["креветки", "свинина", "рыбный соус"], "price": "₫" },
-    { "id": "goi-cuon", "group": "classic", "vi": "Gỏi cuốn", "pron": "гой куон", "ru": "Свежие роллы",
+      "spicy": 0,
+      "contains": [
+        "креветки",
+        "свинина",
+        "рыбный соус"
+      ],
+      "price": "₫",
+      "photo": "media/places/banh-xeo-photo.jpg?v=25ce1109",
+      "credit": "pelican from Tokyo, Japan, CC BY-SA 2.0",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:B%C3%A1nh_x%C3%A8o_(15826153307).jpg"
+    },
+    {
+      "id": "goi-cuon",
+      "group": "classic",
+      "vi": "Gỏi cuốn",
+      "pron": "гой куон",
+      "ru": "Свежие роллы",
       "short": "Холодные роллы в рисовой бумаге с лапшой, зеленью, креветками и свининой. Лёгкие, не жареные и совсем не острые.",
-      "spicy": 0, "contains": ["креветки", "свинина", "арахис в соусе"], "price": "₫" },
-    { "id": "cha-gio", "group": "classic", "vi": "Chả giò", "pron": "ча зё", "ru": "Жареные роллы (нэм)",
+      "spicy": 0,
+      "contains": [
+        "креветки",
+        "свинина",
+        "арахис в соусе"
+      ],
+      "price": "₫",
+      "photo": "media/places/goi-cuon-photo.jpg?v=396a865b",
+      "credit": "Phuongnhu, CC BY-SA 3.0",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Goi_cuon_Phuongnhu.JPG"
+    },
+    {
+      "id": "cha-gio",
+      "group": "classic",
+      "vi": "Chả giò",
+      "pron": "ча зё",
+      "ru": "Жареные роллы (нэм)",
       "short": "Хрустящие жареные роллы с мясом, грибами и лапшой. На севере их зовут nem rán («нем зан»).",
-      "spicy": 0, "contains": ["свинина", "креветки", "яйцо"], "price": "₫" },
-    { "id": "com-tam", "group": "classic", "vi": "Cơm tấm", "pron": "ком там", "ru": "Рис со свиной отбивной",
+      "spicy": 0,
+      "contains": [
+        "свинина",
+        "креветки",
+        "яйцо"
+      ],
+      "price": "₫",
+      "photo": "media/places/cha-gio-photo.jpg?v=a14e0290",
+      "credit": "Phương Huy, CC BY-SA 4.0",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Ch%E1%BA%A3_gi%C3%B2_SG_(nem_r%C3%A1n_gi%C3%B2n)_%E1%BB%9F_qu%C3%A1n_b%C3%BAn_ri%C3%AAu_B%C3%A0_Ti_ng26th7n2023_(1).jpg"
+    },
+    {
+      "id": "com-tam",
+      "group": "classic",
+      "vi": "Cơm tấm",
+      "pron": "ком там",
+      "ru": "Рис со свиной отбивной",
       "short": "Дроблёный рис со свининой на гриле, яичницей или омлетом и маринованными овощами. Сытный обед юга.",
-      "spicy": 0, "contains": ["свинина", "яйцо", "рыбный соус"], "price": "₫" },
-    { "id": "bun-bo-hue", "group": "classic", "vi": "Bún bò Huế", "pron": "бун бо хуэ", "ru": "Острый суп из Хюэ",
+      "spicy": 0,
+      "contains": [
+        "свинина",
+        "яйцо",
+        "рыбный соус"
+      ],
+      "price": "₫",
+      "photo": "media/places/com-tam-photo.jpg?v=bc3c2cb0",
+      "credit": "Christopher Crouzet, CC BY-SA 4.0",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:C%C6%A1m_T%E1%BA%A5m,_Da_Nang,_Vietnam.jpg"
+    },
+    {
+      "id": "bun-bo-hue",
+      "group": "classic",
+      "vi": "Bún bò Huế",
+      "pron": "бун бо хуэ",
+      "ru": "Острый суп из Хюэ",
       "short": "Толстая рисовая лапша в насыщенном говяжьем бульоне с лемонграссом и чили. Острый уже сам по себе — попросите «ít cay», если боитесь.",
-      "spicy": 2, "contains": ["говядина", "свинина", "креветочная паста"], "price": "₫" },
-    { "id": "che", "group": "sweet", "vi": "Chè", "pron": "че", "ru": "Десерт-коктейль",
+      "spicy": 2,
+      "contains": [
+        "говядина",
+        "свинина",
+        "креветочная паста"
+      ],
+      "price": "₫",
+      "photo": "media/places/bun-bo-hue-photo.jpg?v=528b27aa",
+      "credit": "Kham Tran, CC BY 3.0",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Bun-Bo-Hue-2008.jpg"
+    },
+    {
+      "id": "che",
+      "group": "sweet",
+      "vi": "Chè",
+      "pron": "че",
+      "ru": "Десерт-коктейль",
       "short": "Сладкий десерт в стакане: бобы, желе, фрукты, кокосовое молоко и лёд. Видов десятки — выбирают, показывая пальцем.",
-      "spicy": 0, "contains": ["кокосовое молоко", "бобовые"], "price": "₫" },
-    { "id": "ca-phe-trung", "group": "sweet", "vi": "Cà phê trứng", "pron": "ка фе чынг", "ru": "Кофе с яйцом",
+      "spicy": 0,
+      "contains": [
+        "кокосовое молоко",
+        "бобовые"
+      ],
+      "price": "₫",
+      "photo": "media/places/che-photo.jpg?v=05b440e4",
+      "credit": "Zxcvasdfqwer888, CC BY-SA 3.0",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Ch%C3%A8_b%C3%A0_ba.jpg"
+    },
+    {
+      "id": "ca-phe-trung",
+      "group": "sweet",
+      "vi": "Cà phê trứng",
+      "pron": "ка фе чынг",
+      "ru": "Кофе с яйцом",
       "short": "Крепкий кофе под шапкой из желтка, взбитого со сгущёнкой, — на вкус как тирамису. Родом из Ханоя, но варят по всей стране.",
-      "spicy": 0, "contains": ["яйцо", "сгущённое молоко"], "price": "₫" }
+      "spicy": 0,
+      "contains": [
+        "яйцо",
+        "сгущённое молоко"
+      ],
+      "price": "₫",
+      "photo": "media/places/ca-phe-trung-photo.jpg?v=15a96d8b",
+      "credit": "Phương Huy (thảo luận), Public domain",
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:C%C3%A0_ph%C3%AA_tr%E1%BB%A9ng_Gi%E1%BA%A3ng_(c%C6%A1_s%E1%BB%9F_1_Nguy%E1%BB%85n_H%E1%BB%AFu_Hu%C3%A2n).jpg"
+    }
   ]
 }
