@@ -216,7 +216,12 @@ a{color:var(--ink-soft)}
 .pin.sel svg{transform:scale(1.25);transform-origin:50% 100%}
 .me{width:16px;height:16px;border-radius:8px;background:#2F6B72;border:3px solid #fff;box-shadow:0 0 0 6px rgba(47,107,114,.25)}
 .sheet{position:absolute;left:10px;right:10px;z-index:4;bottom:calc(var(--sb) + 10px);max-width:480px;margin:0 auto;max-height:62vh;overflow-y:auto;background:var(--card);border:1.5px solid var(--ink);box-shadow:3px 4px 0 rgba(43,42,40,.2);padding:14px 16px 14px;transform:rotate(-.4deg)}
-.sheet .x{position:absolute;right:6px;top:6px;width:44px;height:44px;border:0;background:transparent;display:flex;align-items:center;justify-content:center}
+.sheet .ph-wrap{margin:-14px -16px 12px;position:relative;background:#E8DFCC}
+.sheet .ph-wrap img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}
+.sheet .ph-cap{display:block;padding:4px 16px 0;font-size:10px;line-height:1.35;color:var(--ink-soft);font-style:italic}
+.sheet .ph-cap a{color:var(--ink-soft)}
+.sheet .ph-wrap + .x, .sheet .x.on-photo{background:rgba(255,252,244,.92);border-radius:22px}
+.sheet .x{position:absolute;right:6px;top:6px;z-index:2;width:44px;height:44px;border:0;background:transparent;display:flex;align-items:center;justify-content:center}
 .sheet h3{margin:0 40px 0 0;font-family:Caveat,cursive;font-weight:700;font-size:32px;line-height:1.05}
 .sheet .vi{font-size:14px;color:var(--ink-soft);margin-top:2px}
 .sheet .meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:#4A463F}
@@ -359,7 +364,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611011930';
+  var BUILD = '202611012000';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -789,9 +794,11 @@ a{color:var(--ink-soft)}
     var meta = [esc(CAT_LABEL[p.cat] || p.cat)];
     if (p.price) meta.push(esc(p.price));
     if (p.hours) meta.push(esc(p.hours));
+    var photo = p.photo ? '<div class="ph-wrap"><img src="' + esc(p.photo) + '" alt="' + esc(p.name) + '" loading="lazy" decoding="async"></div>' +
+      '<span class="ph-cap" style="margin:-8px -16px 10px">Фото: ' + (p.creditUrl ? '<a href="#" data-link="' + esc(p.creditUrl) + '">' + esc(p.credit) + '</a>' : esc(p.credit)) + '</span>' : '';
     $('placeSheet').innerHTML =
-      '<button class="x" type="button" data-act="close-place" aria-label="Закрыть"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
-      '<h3>' + esc(p.name) + '</h3>' + (p.nameVi ? '<div class="vi" lang="vi">' + esc(p.nameVi) + '</div>' : '') +
+      '<button class="x' + (p.photo ? ' on-photo' : '') + '" type="button" data-act="close-place" aria-label="Закрыть"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+      photo + '<h3>' + esc(p.name) + '</h3>' + (p.nameVi ? '<div class="vi" lang="vi">' + esc(p.nameVi) + '</div>' : '') +
       '<div class="meta"><span>' + meta.join(' · ') + '</span>' +
         badgeHtml(p) + '</div>' +
       '<p class="short">' + esc(p.short) + '</p>' +
