@@ -111,7 +111,7 @@ a{color:var(--ink-soft)}
 .today .in{position:relative;display:flex;flex-direction:column;gap:4px}
 .today .date{font-family:Caveat,cursive;font-weight:700;font-size:25px}
 .temp-row{display:flex;align-items:center;gap:12px}
-.temp{flex:none;font-family:Caveat,cursive;font-weight:700;font-size:62px;line-height:1}
+.temp{flex:none;font-family:Caveat,cursive;font-weight:700;font-size:62px;line-height:1;padding-right:6px}
 .wtext{flex:1;min-width:0;font-size:14px;line-height:1.35}
 .facts{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:#4A463F}
 .facts span[hidden]{display:none}
@@ -279,7 +279,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611011730';
+  var BUILD = '202611011740';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -444,7 +444,7 @@ a{color:var(--ink-soft)}
 
   function paintWeather(w){
     if (!w) return;
-    $('tTemp').textContent = (Math.round(w.current.temperature_2m) > 0 ? '+' : '') + Math.round(w.current.temperature_2m) + '°';
+    $('tTemp').textContent = (Math.round(w.current.temperature_2m) > 0 ? '+' : '') + Math.round(w.current.temperature_2m);
     var t = weatherText(w).split('\n');
     $('tText').innerHTML = esc(t[0]) + '<br>' + esc(t[1]);
     var ss = w.daily.sunset && w.daily.sunset[0];
