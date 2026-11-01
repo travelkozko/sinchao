@@ -277,6 +277,12 @@ a{color:var(--ink-soft)}
 .alg-vi{font-size:clamp(22px, 6.4vw, 28px);font-weight:600;line-height:1.3;margin-bottom:10px}
 .alg-ru{margin-top:6px;font-size:15px;line-height:1.45}
 .alg-pr{margin-top:10px;font-size:13px;font-style:italic;color:var(--ink-soft);line-height:1.45}
+
+.alg-stop{margin-top:4px;padding:16px;background:#F6D9CF;border:1.5px solid var(--clay);transform:rotate(-.5deg);box-shadow:2px 3px 0 rgba(43,42,40,.15)}
+.alg-stop-h{font-size:20px;font-weight:600;line-height:1.3}
+.alg-stop-s{margin-top:4px;font-family:Caveat,cursive;font-weight:700;font-size:26px;color:var(--clay)}
+.alg-why{margin:4px 0 12px;font-size:15px;line-height:1.45}
+.alg-note{margin:14px 0 0;font-size:13px;font-style:italic;color:var(--ink-soft)}
 </style>
 </head>
 <body>
@@ -403,7 +409,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611012130';
+  var BUILD = '202611012145';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -592,7 +598,7 @@ a{color:var(--ink-soft)}
           '<div class="fd-meta"><span>' + (d.spicy ? chili(d.spicy) + ' ' + ['', 'чуть остро', 'остро', 'очень остро'][d.spicy] : 'не остро') + '</span>' +
             '<span>' + esc(d.price) + ' · ' + ['', 'недорого', 'средне', 'дорого'][d.price.length] + '</span></div>' +
           '<p style="margin-top:12px">' + esc(d.short) + '</p>' +
-          (d.contains && d.contains.length ? '<p class="fd-contains"><b>Обычно в составе:</b> ' + esc(d.contains.join(', ')) + '.<br><small style="color:var(--ink-soft)">Рецепт в каждом кафе свой — при аллергии спросите кнопкой ниже.</small></p>' : '') +
+          compHtml(d) +
           (d.photo ? '<figure class="fd-photo" style="margin-left:0;margin-right:0"><img src="' + esc(d.photo) + '" alt="' + esc(d.ru) + ' — фото" loading="lazy" decoding="async" onerror="this.closest(\'figure\').remove()">' +
             '<small>Фото: ' + (d.creditUrl ? '<a href="#" data-link="' + esc(d.creditUrl) + '">' + esc(d.credit) + '</a>' : esc(d.credit)) + '</small></figure>' : '') +
           '<div class="fd-acts"><button type="button" data-go="order:' + d.id + '">Показать официанту</button>' +
@@ -612,20 +618,14 @@ a{color:var(--ink-soft)}
       }
     } else if (/^allergy:/.test(id)) {
       var ad = FOOD && FOOD.dishes.filter(function(x){ return x.id === id.slice(8); })[0];
-      var sel = ALLERGENS.filter(function(x){ return allergySel.indexOf(x[0]) >= 0; });
-      var vi = sel.map(function(x){ return x[1]; }).join(', '), ru = sel.map(function(x){ return x[3]; }).join(', ');
-      html = '<h2 style="font-size:36px">Аллергия</h2><p style="font-size:14px;color:var(--ink-soft)">Отметьте, на что аллергия, — и покажите экран официанту.</p>' +
-        '<div class="chips" style="flex-wrap:wrap;overflow:visible;margin:0;padding:4px 0 12px" role="group" aria-label="Аллергены">' +
-        ALLERGENS.map(function(x){ return '<button class="chip" type="button" data-allergen="' + x[0] + '" aria-pressed="' + (allergySel.indexOf(x[0]) >= 0) + '">' + esc(x[3]) + '</button>'; }).join('') + '</div>' +
-        (sel.length ? '<div class="say" style="min-height:0;gap:12px"><div class="card">' +
-          '<div class="alg-vi" lang="vi">Tôi bị dị ứng ' + esc(vi) + '.</div>' +
-          (ad ? '<div class="alg-vi" lang="vi">Món <b>' + esc(ad.vi) + '</b> có ' + esc(vi) + ' không?</div>' : '<div class="alg-vi" lang="vi">Món này có ' + esc(vi) + ' không?</div>') +
-          '<div class="alg-vi" lang="vi">Xin đừng cho ' + esc(vi) + ' vào món ăn.</div>' +
-          '<div class="alg-ru">У меня аллергия: ' + esc(ru) + '. ' + (ad ? 'В блюде «' + esc(ad.ru) + '»' : 'В этом блюде') + ' это есть? Пожалуйста, не кладите это в еду.</div>' +
-          '<div class="alg-pr">«той би зи ынг…» — «у меня аллергия на…»<br>«…ко … хонг?» — «есть ли…?»</div></div>' +
-          '<div class="hint">покажите экран официанту · ответ «có» (ко) — есть, «không» (хонг) — нет</div></div>'
-        : '<p class="empty">Выберите хотя бы один пункт.</p>') +
-        '<p class="pb-note">Фразы переведены нами и проверены по словарю, но мы не врачи. При тяжёлой аллергии держите при себе карточку на вьетнамском от врача или переводчика.</p>';
+      if (!ad) { html = '<p class="empty">Загружаем…</p>'; loadFood(); }
+      else {
+        html = '<h2 style="font-size:36px">Аллергия</h2><p style="font-size:14px;color:var(--ink-soft)">Блюдо: <b>' + esc(ad.ru) + '</b> · <span lang="vi">' + esc(ad.vi) + '</span>. Отметьте, на что аллергия.</p>' +
+          '<div class="chips" style="flex-wrap:wrap;overflow:visible;margin:0;padding:4px 0 12px" role="group" aria-label="Аллергены">' +
+          FOOD.allergens.map(function(x){ return '<button class="chip" type="button" data-allergen="' + x[0] + '" aria-pressed="' + (allergySel.indexOf(x[0]) >= 0) + '">' + esc(x[1]) + '</button>'; }).join('') + '</div>' +
+          allergyVerdict(ad) +
+          '<p class="pb-note">Состав — типичный для этого блюда, рецепт в каждом кафе свой. Фразы переведены нами, мы не врачи: при тяжёлой аллергии держите при себе карточку на вьетнамском от врача или переводчика.</p>';
+      }
     } else if (/^say:/.test(id)) {
       var ph = ALL[+id.slice(4)];
       if (!ph) { html = '<p class="empty">Загружаем фразы…</p>'; }
@@ -1038,23 +1038,66 @@ a{color:var(--ink-soft)}
   });
 
   // ----- аллергия: что выбрал человек, помним на этом телефоне
-  var ALLERGENS = [
-    ['seafood', 'hải sản', 'хай сан', 'морепродукты'],
-    ['shrimp', 'tôm', 'том', 'креветки'],
-    ['fish', 'cá', 'ка', 'рыба'],
-    ['fishsauce', 'nước mắm', 'ныок мам', 'рыбный соус'],
-    ['peanut', 'đậu phộng', 'дау фонг', 'арахис'],
-    ['egg', 'trứng', 'чынг', 'яйца'],
-    ['milk', 'sữa', 'сыа', 'молоко'],
-    ['wheat', 'bột mì', 'бот ми', 'пшеница (глютен)'],
-    ['soy', 'đậu nành', 'дау нань', 'соя']
-  ];
+  // Правило (см. source/food/ALLERGY.md):
+  //  1) продукт есть в составе блюда (has)  → «В этом блюде есть … Лучше выберите другое» + блюда без него;
+  //  2) продукт может быть спрятан (may)    → фразы официанту именно про эти продукты;
+  //  3) продукта обычно нет                 → короткая фраза-предупреждение, на всякий случай.
   var allergySel = store('sc_allergy') || [];
+  function ingr(k){ return (FOOD.ingredients || {})[k] || [k, k, k]; }
+  function selectedIngredients(){
+    var out = [];
+    FOOD.allergens.forEach(function(a){ if (allergySel.indexOf(a[0]) >= 0) a[3].forEach(function(k){ if (out.indexOf(k) < 0) out.push(k); }); });
+    return out;
+  }
+  function compHtml(d){
+    var has = (d.has || []).map(function(k){ return ingr(k)[0]; }).concat(d.also || []);
+    var may = (d.may || []).map(function(k){ return ingr(k)[0]; });
+    if (!has.length && !may.length) return '';
+    return '<p class="fd-contains">' + (has.length ? '<b>В составе:</b> ' + esc(has.join(', ')) + '.' : '') +
+      (may.length ? (has.length ? '<br>' : '') + '<b>Может быть:</b> ' + esc(may.join(', ')) + '.' : '') + '</p>';
+  }
+  function allergyVerdict(d){
+    if (!allergySel.length) return '<p class="empty">Выберите хотя бы один пункт.</p>';
+    var picked = selectedIngredients();
+    var has = (d.has || []).filter(function(k){ return picked.indexOf(k) >= 0; });
+    var may = (d.may || []).filter(function(k){ return picked.indexOf(k) >= 0 && has.indexOf(k) < 0; });
+    var allerVi = FOOD.allergens.filter(function(a){ return allergySel.indexOf(a[0]) >= 0; }).map(function(a){ return a[2]; }).join(', ');
+    var allerRu = FOOD.allergens.filter(function(a){ return allergySel.indexOf(a[0]) >= 0; }).map(function(a){ return a[1]; }).join(', ');
+    var fsNote = allergySel.indexOf('seafood') >= 0 && allergySel.indexOf('fish') < 0 && allergySel.indexOf('fishsauce') < 0 && (d.has || []).indexOf('fishsauce') >= 0
+      ? '<p class="alg-note">Рыбный соус есть почти в каждом вьетнамском блюде. Если аллергия и на рыбу — отметьте «рыбный соус».</p>' : '';
+    if (has.length) {
+      var safe = FOOD.dishes.filter(function(x){ return x.id !== d.id && !(x.has || []).some(function(k){ return picked.indexOf(k) >= 0; }); });
+      return '<div class="alg-stop"><div class="alg-stop-h">В этом блюде есть ' + esc(has.map(function(k){ return ingr(k)[0]; }).join(', ')) + '.</div>' +
+        '<div class="alg-stop-s">Лучше выберите другое.</div></div>' +
+        (safe.length ? '<div class="pb-h" style="margin-top:16px">Можно попробовать</div><div class="list">' + safe.slice(0, 6).map(function(x){
+          var hid = (x.may || []).filter(function(k){ return picked.indexOf(k) >= 0; });
+          return '<button class="row" type="button" data-go="allergy:' + x.id + '"><span class="t"><b>' + esc(x.ru) + '</b><small lang="vi">' + esc(x.vi) +
+            (hid.length ? ' · может быть ' + esc(hid.map(function(k){ return ingr(k)[0]; }).join(', ')) + ' — спросите' : '') + '</small></span></button>';
+        }).join('') + '</div>' : '<p class="empty">Среди наших блюд нет вариантов без этих продуктов — спросите в кафе.</p>') + fsNote;
+    }
+    if (may.length) {
+      var vi = may.map(function(k){ return ingr(k)[1]; }).join(', '), ru = may.map(function(k){ return ingr(k)[0]; }).join(', ');
+      return '<p class="alg-why">В классическом рецепте этого нет, но <b>' + esc(ru) + '</b> часто добавляют — в соус, заправку или сверху. Зависит от кафе, поэтому спросите:</p>' +
+        '<div class="say" style="min-height:0;gap:12px"><div class="card">' +
+          '<div class="alg-vi" lang="vi">Tôi bị dị ứng ' + esc(allerVi) + '.</div>' +
+          '<div class="alg-vi" lang="vi">Món này có ' + esc(vi) + ' không?</div>' +
+          '<div class="alg-vi" lang="vi">Xin đừng cho ' + esc(vi) + ' vào món ăn.</div>' +
+          '<div class="alg-ru">У меня аллергия: ' + esc(allerRu) + '. В этом блюде есть ' + esc(ru) + '? Пожалуйста, не кладите это в еду.</div>' +
+          '<div class="alg-pr">«той би зи ынг…» — «у меня аллергия на…»; «мон най ко … хонг?» — «в этом блюде есть…?»</div></div>' +
+          '<div class="hint">ответ «có» (ко) — есть, «không» (хонг) — нет</div></div>' + fsNote;
+    }
+    return '<p class="alg-why">Обычно в этом блюде этого нет. На всякий случай предупредите официанта:</p>' +
+      '<div class="say" style="min-height:0;gap:12px"><div class="card">' +
+        '<div class="alg-vi" lang="vi">Tôi bị dị ứng ' + esc(allerVi) + '.</div>' +
+        '<div class="alg-vi" lang="vi">Xin đừng cho ' + esc(allerVi) + ' vào món ăn.</div>' +
+        '<div class="alg-ru">У меня аллергия: ' + esc(allerRu) + '. Пожалуйста, не кладите это в еду.</div></div></div>' + fsNote;
+  }
   document.addEventListener('click', function(e){
     var b = e.target.closest('[data-allergen]'); if (!b) return;
     var k = b.getAttribute('data-allergen'), i = allergySel.indexOf(k);
     if (i >= 0) allergySel.splice(i, 1); else allergySel.push(k);
-    allergySel.sort(function(a, c){ return ALLERGENS.findIndex(function(x){ return x[0] === a; }) - ALLERGENS.findIndex(function(x){ return x[0] === c; }); });
+    var order = FOOD.allergens.map(function(a){ return a[0]; });
+    allergySel.sort(function(a, c){ return order.indexOf(a) - order.indexOf(c); });
     store('sc_allergy', allergySel); haptic('light');
     var sc = $('page').querySelector('.scroll').scrollTop;
     renderPage(stack[stack.length - 1]); $('page').querySelector('.scroll').scrollTop = sc;

@@ -1,5 +1,5 @@
 {
-  "note": "Рецепт в каждом кафе свой. Состав — типичный, а не гарантированный: при аллергии обязательно спросите. Нужные фразы — в разговорнике, тема «Кафе и еда».",
+  "note": "Состав — типичный, а не гарантированный: рецепт в каждом кафе свой. При аллергии нажмите в карточке блюда «Спросить про аллергию».",
   "spicyNote": "Острота — как обычно подают. Во Вьетнаме часто кладут перец и соусы отдельно, чтобы каждый добавил сам.",
   "groups": [
     {
@@ -24,14 +24,19 @@
       "ru": "Суп с рыбными котлетками",
       "short": "Главное блюдо Нячанга: рисовая лапша в прозрачном бульоне с жареными и паровыми рыбными котлетками, иногда с кусочками медузы. Едят с утра.",
       "spicy": 1,
-      "contains": [
-        "рыба",
-        "рыбный соус"
-      ],
       "price": "₫",
       "photo": "media/food/bun-cha-ca-photo.jpg?v=6b22ddb8",
       "credit": "Everyday English, CC BY-SA 4.0",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:Bun_cha_ca.jpg"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Bun_cha_ca.jpg",
+      "has": [
+        "fish",
+        "fishsauce"
+      ],
+      "may": [
+        "jellyfish",
+        "shrimp"
+      ],
+      "also": []
     },
     {
       "id": "nem-nuong",
@@ -41,14 +46,20 @@
       "ru": "Жареные свиные колбаски",
       "short": "Колбаски на гриле, которые сам заворачиваешь в рисовую бумагу с зеленью, огурцом и хрустящей рисовой корочкой, и макаешь в густой соус.",
       "spicy": 0,
-      "contains": [
-        "свинина",
-        "арахис в соусе"
-      ],
       "price": "₫",
       "photo": "media/food/nem-nuong-photo.jpg?v=842cfce4",
       "credit": "Phương Huy, CC BY-SA 4.0",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:B%C3%A1nh_h%E1%BB%8Fi_nem_n%C6%B0%E1%BB%9Bng_%C4%83n_v%E1%BB%9Bi_b%C3%A1nh_tr%C3%A1ng_th%C3%A1ng_6_n%C4%83m_2018_(1).jpg"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:B%C3%A1nh_h%E1%BB%8Fi_nem_n%C6%B0%E1%BB%9Bng_%C4%83n_v%E1%BB%9Bi_b%C3%A1nh_tr%C3%A1ng_th%C3%A1ng_6_n%C4%83m_2018_(1).jpg",
+      "has": [
+        "peanut"
+      ],
+      "may": [
+        "fishsauce",
+        "soy"
+      ],
+      "also": [
+        "свинина"
+      ]
     },
     {
       "id": "banh-can",
@@ -58,15 +69,19 @@
       "ru": "Рисовые оладушки",
       "short": "Маленькие хрустящие оладьи из рисового теста, которые пекут в глиняных формочках прямо при вас — с перепелиным яйцом, креветкой или кальмаром.",
       "spicy": 1,
-      "contains": [
-        "яйцо",
-        "креветки или кальмар",
-        "рыбный соус"
-      ],
       "price": "₫",
       "photo": "media/food/banh-can-photo.jpg?v=f4f53e22",
       "credit": "Saigon Time, CC0",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:B%C3%A1nh_c%C4%83n_in_phan_rang,_vietnam.jpg"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:B%C3%A1nh_c%C4%83n_in_phan_rang,_vietnam.jpg",
+      "has": [
+        "egg",
+        "fishsauce"
+      ],
+      "may": [
+        "shrimp",
+        "squid"
+      ],
+      "also": []
     },
     {
       "id": "bun-sua",
@@ -76,12 +91,16 @@
       "ru": "Суп с медузой",
       "short": "Лапша в лёгком бульоне с хрустящими полосками медузы и рыбными котлетками — местный деликатес побережья.",
       "spicy": 1,
-      "contains": [
-        "медуза",
-        "рыба",
-        "рыбный соус"
+      "price": "₫",
+      "has": [
+        "jellyfish",
+        "fish",
+        "fishsauce"
       ],
-      "price": "₫"
+      "may": [
+        "shrimp"
+      ],
+      "also": []
     },
     {
       "id": "hai-san-nuong",
@@ -91,11 +110,17 @@
       "ru": "Морепродукты на гриле",
       "short": "Креветки, кальмары, гребешки и моллюски, которые жарят на углях у вас на глазах. Цену обычно считают по весу — уточняйте до заказа.",
       "spicy": 1,
-      "contains": [
-        "морепродукты",
-        "арахис и зелёный лук на гребешках"
+      "price": "₫₫",
+      "has": [
+        "shrimp",
+        "squid",
+        "shellfish"
       ],
-      "price": "₫₫"
+      "may": [
+        "peanut",
+        "fishsauce"
+      ],
+      "also": []
     },
     {
       "id": "pho",
@@ -105,14 +130,20 @@
       "ru": "Фо с говядиной",
       "short": "Самый известный вьетнамский суп: рисовая лапша в ароматном говяжьем бульоне с бадьяном и корицей. Зелень, лайм и перец добавляют по вкусу.",
       "spicy": 0,
-      "contains": [
-        "говядина",
-        "рыбный соус"
-      ],
       "price": "₫",
       "photo": "media/food/pho-photo.jpg?v=a6d90e14",
       "credit": "Andy Li, CC0",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:Beef_Pho_(M)_-_Milk_No_Sugar.jpg"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Beef_Pho_(M)_-_Milk_No_Sugar.jpg",
+      "has": [
+        "fishsauce"
+      ],
+      "may": [
+        "soy",
+        "wheat"
+      ],
+      "also": [
+        "говядина"
+      ]
     },
     {
       "id": "banh-mi",
@@ -122,15 +153,22 @@
       "ru": "Вьетнамский багет",
       "short": "Хрустящий лёгкий багет с паштетом, мясом или яйцом, маринованными овощами, огурцом и кинзой. Перекус на ходу за копейки.",
       "spicy": 1,
-      "contains": [
-        "глютен",
-        "свинина или яйцо",
-        "паштет"
-      ],
       "price": "₫",
       "photo": "media/food/banh-mi-photo.jpg?v=67c76e9b",
       "credit": "Stu Spivack, CC BY-SA 2.0",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:B%C3%A1nh_m%C3%AC.jpg"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:B%C3%A1nh_m%C3%AC.jpg",
+      "has": [
+        "wheat"
+      ],
+      "may": [
+        "egg",
+        "milk",
+        "soy",
+        "fishsauce"
+      ],
+      "also": [
+        "свинина или курица"
+      ]
     },
     {
       "id": "bun-cha",
@@ -140,14 +178,17 @@
       "ru": "Лапша с жареной свининой",
       "short": "Свиные котлетки и кусочки мяса с гриля в кисло-сладком соусе, к ним холодная рисовая лапша и тарелка зелени.",
       "spicy": 0,
-      "contains": [
-        "свинина",
-        "рыбный соус"
-      ],
       "price": "₫",
       "photo": "media/food/bun-cha-photo.jpg?v=072ce7d4",
       "credit": "Valentin Orange, CC BY-SA 4.0",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:Bun-cha-hanoi.jpg"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Bun-cha-hanoi.jpg",
+      "has": [
+        "fishsauce"
+      ],
+      "may": [],
+      "also": [
+        "свинина"
+      ]
     },
     {
       "id": "banh-xeo",
@@ -157,15 +198,20 @@
       "ru": "Хрустящий блин",
       "short": "Тонкий жёлтый блин из рисовой муки с куркумой, внутри креветки, свинина и ростки сои. Кусочки заворачивают в зелень и макают в соус.",
       "spicy": 0,
-      "contains": [
-        "креветки",
-        "свинина",
-        "рыбный соус"
-      ],
       "price": "₫",
       "photo": "media/food/banh-xeo-photo.jpg?v=25ce1109",
       "credit": "pelican from Tokyo, Japan, CC BY-SA 2.0",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:B%C3%A1nh_x%C3%A8o_(15826153307).jpg"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:B%C3%A1nh_x%C3%A8o_(15826153307).jpg",
+      "has": [
+        "shrimp",
+        "fishsauce"
+      ],
+      "may": [
+        "egg"
+      ],
+      "also": [
+        "свинина"
+      ]
     },
     {
       "id": "goi-cuon",
@@ -175,15 +221,22 @@
       "ru": "Свежие роллы",
       "short": "Холодные роллы в рисовой бумаге с лапшой, зеленью, креветками и свининой. Лёгкие, не жареные и совсем не острые.",
       "spicy": 0,
-      "contains": [
-        "креветки",
-        "свинина",
-        "арахис в соусе"
-      ],
       "price": "₫",
       "photo": "media/food/goi-cuon-photo.jpg?v=396a865b",
       "credit": "Phuongnhu, CC BY-SA 3.0",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:Goi_cuon_Phuongnhu.JPG"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Goi_cuon_Phuongnhu.JPG",
+      "has": [
+        "shrimp",
+        "peanut"
+      ],
+      "may": [
+        "soy",
+        "wheat",
+        "fishsauce"
+      ],
+      "also": [
+        "свинина"
+      ]
     },
     {
       "id": "cha-gio",
@@ -193,15 +246,22 @@
       "ru": "Жареные роллы (нэм)",
       "short": "Хрустящие жареные роллы с мясом, грибами и лапшой. На севере их зовут nem rán («нем зан»).",
       "spicy": 0,
-      "contains": [
-        "свинина",
-        "креветки",
-        "яйцо"
-      ],
       "price": "₫",
       "photo": "media/food/cha-gio-photo.jpg?v=a14e0290",
       "credit": "Phương Huy, CC BY-SA 4.0",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:Ch%E1%BA%A3_gi%C3%B2_SG_(nem_r%C3%A1n_gi%C3%B2n)_%E1%BB%9F_qu%C3%A1n_b%C3%BAn_ri%C3%AAu_B%C3%A0_Ti_ng26th7n2023_(1).jpg"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Ch%E1%BA%A3_gi%C3%B2_SG_(nem_r%C3%A1n_gi%C3%B2n)_%E1%BB%9F_qu%C3%A1n_b%C3%BAn_ri%C3%AAu_B%C3%A0_Ti_ng26th7n2023_(1).jpg",
+      "has": [
+        "egg",
+        "fishsauce"
+      ],
+      "may": [
+        "shrimp",
+        "wheat",
+        "soy"
+      ],
+      "also": [
+        "свинина"
+      ]
     },
     {
       "id": "com-tam",
@@ -211,15 +271,20 @@
       "ru": "Рис со свиной отбивной",
       "short": "Дроблёный рис со свининой на гриле, яичницей или омлетом и маринованными овощами. Сытный обед юга.",
       "spicy": 0,
-      "contains": [
-        "свинина",
-        "яйцо",
-        "рыбный соус"
-      ],
       "price": "₫",
       "photo": "media/food/com-tam-photo.jpg?v=bc3c2cb0",
       "credit": "Christopher Crouzet, CC BY-SA 4.0",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:C%C6%A1m_T%E1%BA%A5m,_Da_Nang,_Vietnam.jpg"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:C%C6%A1m_T%E1%BA%A5m,_Da_Nang,_Vietnam.jpg",
+      "has": [
+        "egg",
+        "fishsauce"
+      ],
+      "may": [
+        "soy"
+      ],
+      "also": [
+        "свинина"
+      ]
     },
     {
       "id": "bun-bo-hue",
@@ -229,15 +294,21 @@
       "ru": "Острый суп из Хюэ",
       "short": "Толстая рисовая лапша в насыщенном говяжьем бульоне с лемонграссом и чили. Острый уже сам по себе — попросите «ít cay», если боитесь.",
       "spicy": 2,
-      "contains": [
-        "говядина",
-        "свинина",
-        "креветочная паста"
-      ],
       "price": "₫",
       "photo": "media/food/bun-bo-hue-photo.jpg?v=528b27aa",
       "credit": "Kham Tran, CC BY 3.0",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:Bun-Bo-Hue-2008.jpg"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Bun-Bo-Hue-2008.jpg",
+      "has": [
+        "shrimppaste",
+        "fishsauce"
+      ],
+      "may": [
+        "shellfish"
+      ],
+      "also": [
+        "говядина",
+        "свинина"
+      ]
     },
     {
       "id": "che",
@@ -247,14 +318,19 @@
       "ru": "Десерт-коктейль",
       "short": "Сладкий десерт в стакане: бобы, желе, фрукты, кокосовое молоко и лёд. Видов десятки — выбирают, показывая пальцем.",
       "spicy": 0,
-      "contains": [
-        "кокосовое молоко",
-        "бобовые"
-      ],
       "price": "₫",
       "photo": "media/food/che-photo.jpg?v=05b440e4",
       "credit": "Zxcvasdfqwer888, CC BY-SA 3.0",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:Ch%C3%A8_b%C3%A0_ba.jpg"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:Ch%C3%A8_b%C3%A0_ba.jpg",
+      "has": [],
+      "may": [
+        "peanut",
+        "milk"
+      ],
+      "also": [
+        "кокосовое молоко",
+        "бобовые"
+      ]
     },
     {
       "id": "ca-phe-trung",
@@ -264,14 +340,161 @@
       "ru": "Кофе с яйцом",
       "short": "Крепкий кофе под шапкой из желтка, взбитого со сгущёнкой, — на вкус как тирамису. Родом из Ханоя, но варят по всей стране.",
       "spicy": 0,
-      "contains": [
-        "яйцо",
-        "сгущённое молоко"
-      ],
       "price": "₫",
       "photo": "media/food/ca-phe-trung-photo.jpg?v=15a96d8b",
       "credit": "Phương Huy (thảo luận), Public domain",
-      "creditUrl": "https://commons.wikimedia.org/wiki/File:C%C3%A0_ph%C3%AA_tr%E1%BB%A9ng_Gi%E1%BA%A3ng_(c%C6%A1_s%E1%BB%9F_1_Nguy%E1%BB%85n_H%E1%BB%AFu_Hu%C3%A2n).jpg"
+      "creditUrl": "https://commons.wikimedia.org/wiki/File:C%C3%A0_ph%C3%AA_tr%E1%BB%A9ng_Gi%E1%BA%A3ng_(c%C6%A1_s%E1%BB%9F_1_Nguy%E1%BB%85n_H%E1%BB%AFu_Hu%C3%A2n).jpg",
+      "has": [
+        "egg",
+        "milk"
+      ],
+      "may": [],
+      "also": [
+        "кофе"
+      ]
     }
+  ],
+  "ingredients": {
+    "fish": [
+      "рыба",
+      "cá",
+      "ка"
+    ],
+    "fishsauce": [
+      "рыбный соус",
+      "nước mắm",
+      "ныок мам"
+    ],
+    "shrimp": [
+      "креветки",
+      "tôm",
+      "том"
+    ],
+    "squid": [
+      "кальмар",
+      "mực",
+      "мык"
+    ],
+    "jellyfish": [
+      "медуза",
+      "sứa",
+      "сыа"
+    ],
+    "shellfish": [
+      "моллюски и крабы",
+      "hải sản có vỏ",
+      "хай сан ко во"
+    ],
+    "shrimppaste": [
+      "креветочная паста",
+      "mắm ruốc",
+      "мам зуок"
+    ],
+    "peanut": [
+      "арахис",
+      "đậu phộng",
+      "дау фонг"
+    ],
+    "egg": [
+      "яйца",
+      "trứng",
+      "чынг"
+    ],
+    "milk": [
+      "молоко, сгущёнка",
+      "sữa",
+      "сыа"
+    ],
+    "wheat": [
+      "пшеница (глютен)",
+      "bột mì",
+      "бот ми"
+    ],
+    "soy": [
+      "соя",
+      "đậu nành",
+      "дау нань"
+    ]
+  },
+  "allergens": [
+    [
+      "seafood",
+      "морепродукты",
+      "hải sản",
+      [
+        "fish",
+        "shrimp",
+        "squid",
+        "jellyfish",
+        "shellfish",
+        "shrimppaste"
+      ]
+    ],
+    [
+      "shrimp",
+      "креветки",
+      "tôm",
+      [
+        "shrimp",
+        "shrimppaste"
+      ]
+    ],
+    [
+      "fish",
+      "рыба",
+      "cá",
+      [
+        "fish",
+        "fishsauce"
+      ]
+    ],
+    [
+      "fishsauce",
+      "рыбный соус",
+      "nước mắm",
+      [
+        "fishsauce"
+      ]
+    ],
+    [
+      "peanut",
+      "арахис",
+      "đậu phộng",
+      [
+        "peanut"
+      ]
+    ],
+    [
+      "egg",
+      "яйца",
+      "trứng",
+      [
+        "egg"
+      ]
+    ],
+    [
+      "milk",
+      "молоко",
+      "sữa",
+      [
+        "milk"
+      ]
+    ],
+    [
+      "wheat",
+      "пшеница (глютен)",
+      "bột mì",
+      [
+        "wheat"
+      ]
+    ],
+    [
+      "soy",
+      "соя",
+      "đậu nành",
+      [
+        "soy"
+      ]
+    ]
   ]
 }
