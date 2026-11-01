@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Синь Чао — гид по Вьетнаму</title>
-<meta name="theme-color" content="#F3E3CC">
+<meta name="theme-color" content="#FAE6C8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Rubik:wght@400;500;700&display=swap">
-<link rel="preload" as="image" href="media/poster.jpg?b=202611011500">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="preload" as="image" href="media/poster.jpg?b=202611011625">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{
-  --paper:#F3E3CC; --water:#21838C; --navy:#1F2A44; --pink:#C8285A; --sun:#F6C343;
+  --paper:#FAE6C8; --card:#FFFCF4; --ink:#2B2A28; --ink-soft:#5A554C; --clay:#C0533A; --sea:#7FB7BE;
   --st:max(env(safe-area-inset-top), calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)));
   --sb:max(env(safe-area-inset-bottom), calc(var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px)));
 }
@@ -21,76 +21,68 @@
 html{-webkit-tap-highlight-color:transparent;height:100%}
 body{
   margin:0;min-height:100%;overflow:hidden;
-  background:var(--water);color:var(--navy);
-  font-family:Rubik,system-ui,sans-serif;
+  background:var(--paper);color:var(--ink);
+  font-family:Lora,Georgia,serif;
   -webkit-user-select:none;user-select:none;
 }
 button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
 
 /* ---------- Заставка ---------- */
-#splash{position:fixed;inset:0;overflow:hidden;background:linear-gradient(to bottom, var(--paper) 0 44%, var(--water) 44%)}
-/* сцена 9:16 по ширине экрана: на длинных телефонах снизу продолжается вода,
-   на широких экранах снизу обрезается вода, а солнце и лодка остаются */
+#splash{position:fixed;inset:0;overflow:hidden;background:var(--paper)}
+/* сцена 9:14 по ширине экрана, снизу растворяется в бумаге */
 #stage{
   position:absolute;top:0;left:50%;transform:translateX(-50%);
-  width:min(100vw, calc(100vh * 0.5625));aspect-ratio:9/16;
-  container-type:inline-size;
-  background:var(--paper) url("media/poster.jpg?b=202611011500") center/cover no-repeat;
+  width:min(100vw, calc((100vh - 215px) * 9 / 14));aspect-ratio:9/14;
+  background:var(--paper) url("media/poster.jpg?b=202611011625") center/cover no-repeat;
 }
-#stage.end{background-image:url("media/end.jpg?b=202611011500")}
-#stage::after{ /* мягкий переход видео в воду под ним */
-  content:"";position:absolute;left:0;right:0;bottom:-1px;height:9%;
-  background:linear-gradient(to bottom, rgba(33,131,140,0), var(--water));pointer-events:none;
+#stage.end{background-image:url("media/end.jpg?b=202611011625")}
+#stage::after{ /* ножки табуретки уходят в бумагу, как в незаконченном наброске */
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:11%;
+  background:linear-gradient(to bottom, rgba(250,230,200,0) 0%, rgba(250,230,200,.8) 60%, var(--paper) 100%);
+  pointer-events:none;
 }
 #video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.01;pointer-events:none}
 #video.on{opacity:1}
 
-/* логотип справа от солнца, ниже шапки Telegram */
-#logo{
-  position:absolute;right:6%;left:52%;
-  top:max(calc(var(--st) + 10px), 12%);
-  display:flex;flex-direction:column;align-items:flex-end;text-align:right;
-  opacity:0;transform:translateY(2cqw);
-  transition:opacity .7s ease, transform .9s cubic-bezier(.2,.8,.2,1);
-}
-#logo.show{opacity:1;transform:none}
-#logo h1{
-  margin:0;font-family:Unbounded,sans-serif;font-weight:800;
-  font-size:11.5cqw;line-height:.98;letter-spacing:-.01em;color:var(--navy);
-  text-shadow:2.4cqw 1.6cqw 0 rgba(200,40,90,0);
-  transition:text-shadow 1.1s cubic-bezier(.2,.8,.2,1) .15s;
-}
-#logo.show h1{text-shadow:.7cqw .5cqw 0 rgba(200,40,90,.55)}
-#logo p{
-  margin:2.4cqw 0 0;font-size:3.3cqw;font-weight:500;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--navy);
-}
-
-/* нижние кнопки */
+/* нижний блок: название и кнопка на бумаге */
 .bottom{
   position:fixed;left:50%;transform:translateX(-50%);
-  width:min(calc(100vw - 40px), 420px, calc(100vh * 0.5625 - 40px));
+  width:min(calc(100vw - 44px), 420px, max(280px, calc((100vh - 215px) * 9 / 14 - 20px)));
   bottom:calc(var(--sb) + 22px);
+  display:flex;flex-direction:column;align-items:stretch;
 }
+#logo{
+  margin-bottom:22px;
+  opacity:0;transform:translateY(10px);
+  transition:opacity .8s ease, transform 1s cubic-bezier(.2,.8,.2,1);
+}
+#logo.show{opacity:1;transform:none}
+#logo h1{margin:0;font-family:Caveat,cursive;font-weight:700;font-size:56px;line-height:.95;color:var(--ink)}
+#logo svg{display:block;margin-top:2px}
+#logo svg path{stroke-dasharray:240;stroke-dashoffset:240;transition:stroke-dashoffset 1.1s cubic-bezier(.4,.1,.2,1) .35s}
+#logo.show svg path{stroke-dashoffset:0}
+#logo p{margin:6px 0 0;font-size:15px;font-style:italic;color:var(--ink-soft)}
+
 #open{
-  width:100%;height:58px;border:2px solid var(--navy);border-radius:0;
-  background:var(--paper);color:var(--navy);
-  font-family:Unbounded,sans-serif;font-weight:800;font-size:17px;letter-spacing:.02em;
-  box-shadow:5px 5px 0 var(--pink);
-  opacity:0;transform:translateY(12px);pointer-events:none;
+  width:100%;height:58px;border:1.5px solid var(--ink);border-radius:6px;
+  background:var(--card);color:var(--ink);
+  font-family:Caveat,cursive;font-weight:700;font-size:30px;line-height:1;
+  box-shadow:3px 4px 0 rgba(43,42,40,.2);
+  opacity:0;transform:translateY(10px) rotate(-.6deg);pointer-events:none;
   transition:opacity .5s ease, transform .6s cubic-bezier(.2,.8,.2,1), box-shadow .12s ease;
 }
-#open.show{opacity:1;transform:none;pointer-events:auto}
-#open:active{box-shadow:2px 2px 0 var(--pink);transform:translate(3px,3px)}
+#open.show{opacity:1;transform:rotate(-.6deg);pointer-events:auto}
+#open:active{box-shadow:1px 1px 0 rgba(43,42,40,.2);transform:translate(2px,3px) rotate(-.6deg)}
+#btns{position:relative}
 #skip{
-  display:block;margin:0 auto;height:44px;padding:0 18px;border:0;background:transparent;
-  color:var(--paper);font-size:14px;font-weight:500;letter-spacing:.06em;opacity:.85;
+  position:absolute;left:50%;top:7px;transform:translateX(-50%);height:44px;padding:0 18px;border:0;background:transparent;
+  color:var(--ink-soft);font-size:15px;font-style:italic;
 }
 #tap{
   position:fixed;inset:0;border:0;background:transparent;
   display:flex;align-items:flex-end;justify-content:center;
   padding-bottom:calc(var(--sb) + 40px);
-  color:var(--paper);font-size:16px;font-weight:700;letter-spacing:.04em;
+  color:var(--ink);font-family:Caveat,cursive;font-size:26px;font-weight:700;
 }
 
 /* ---------- Временная заглушка главного экрана ---------- */
@@ -99,9 +91,9 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
   padding:calc(var(--st) + 24px) 24px calc(var(--sb) + 24px);
   display:flex;flex-direction:column;gap:12px;
 }
-#guide h2{margin:0;font-family:Unbounded,sans-serif;font-weight:800;font-size:28px;color:var(--pink)}
+#guide h2{margin:0;font-family:Caveat,cursive;font-weight:700;font-size:44px}
 #guide p{margin:0;font-size:16px;line-height:1.45}
-#back{align-self:flex-start;height:44px;padding:0 16px;border:2px solid var(--navy);background:transparent;color:var(--navy);font-weight:700}
+#back{align-self:flex-start;height:44px;padding:0 16px;border:1.5px dashed var(--ink);border-radius:6px;background:transparent;color:var(--ink);font-family:Caveat,cursive;font-size:22px;font-weight:700}
 </style>
 </head>
 <body>
@@ -109,29 +101,32 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
 <section id="splash" aria-label="Заставка">
   <div id="stage">
     <video id="video" muted playsinline webkit-playsinline preload="auto"
-           poster="media/poster.jpg?b=202611011500" aria-hidden="true"></video>
-    <div id="logo">
-      <h1>СИНЬ<br>ЧАО</h1>
-      <p>гид по Вьетнаму</p>
-    </div>
+           poster="media/poster.jpg?b=202611011625" aria-hidden="true"></video>
   </div>
   <div class="bottom">
-    <button id="open" type="button">Открыть гид</button>
-    <button id="skip" type="button" hidden>Пропустить</button>
+    <div id="logo">
+      <h1>Синь Чао!</h1>
+      <svg aria-hidden="true" width="210" height="14" viewBox="0 0 210 14"><path d="M3 9 C55 3, 120 13, 206 5" fill="none" stroke="#C0533A" stroke-width="3.2" stroke-linecap="round"/></svg>
+      <p>путевые заметки по Вьетнаму</p>
+    </div>
+    <div id="btns">
+      <button id="open" type="button">Открыть гид</button>
+      <button id="skip" type="button" hidden>пропустить</button>
+    </div>
   </div>
   <button id="tap" type="button" hidden>Нажмите, чтобы начать</button>
 </section>
 
 <section id="guide" hidden aria-label="Главный экран">
-  <h2>Синь Чао</h2>
+  <h2>Синь Чао!</h2>
   <p>Здесь будет главный экран: «Сегодня», карта мест, еда, маршруты, практичное, разговорник и афиша.</p>
-  <button id="back" type="button" hidden>← Назад</button>
+  <button id="back" type="button" hidden>← назад</button>
 </section>
 
 <script>
 (function(){
-  var B = '?b=202611011500';
-  var KEY = 'sinchao_intro_v1';
+  var B = '?b=202611011625';
+  var KEY = 'sinchao_intro_v2';
   var tg = window.Telegram && window.Telegram.WebApp;
   var inTg = !!(tg && tg.initData);
 
@@ -142,7 +137,7 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
       if (/android|ios/.test(tg.platform) && tg.isVersionAtLeast && tg.isVersionAtLeast('8.0')) tg.requestFullscreen();
     } catch(e){}
     try { if (tg.isVersionAtLeast && tg.isVersionAtLeast('7.7')) tg.disableVerticalSwipes(); } catch(e){}
-    try { if (tg.isVersionAtLeast && tg.isVersionAtLeast('6.1')) { tg.setHeaderColor('#F3E3CC'); tg.setBackgroundColor('#21838C'); } } catch(e){}
+    try { if (tg.isVersionAtLeast && tg.isVersionAtLeast('6.1')) { tg.setHeaderColor('#FAE6C8'); tg.setBackgroundColor('#FAE6C8'); } } catch(e){}
   }
   function haptic(kind){
     try { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(kind || 'light'); } catch(e){}
