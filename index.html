@@ -164,6 +164,29 @@ a{color:var(--ink-soft)}
 .row .t small{display:block;font-size:13px;color:var(--ink-soft);font-style:italic}
 .row .mark{font-size:13px;font-style:italic;color:var(--ink-soft)}
 .fallback-back{margin-top:22px;height:44px;padding:0 16px;border:1.5px dashed var(--ink);border-radius:8px;background:transparent;font-family:Caveat,cursive;font-size:22px;font-weight:700}
+
+/* ---------- Разговорник ---------- */
+.search{display:block;width:100%;height:46px;margin:6px 0 12px;padding:0 14px;border:1.5px solid var(--ink);border-radius:8px;background:var(--card);font:16px Lora,Georgia,serif;color:var(--ink);-webkit-user-select:text;user-select:text}
+.search::placeholder{color:#7A7366;font-style:italic}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 -22px;padding:2px 22px 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:40px;padding:0 14px;border:1.5px dashed var(--ink);border-radius:20px;background:transparent;font-family:Caveat,cursive;font-weight:700;font-size:21px;white-space:nowrap}
+.chip[aria-pressed="true"]{border-style:solid;background:var(--ink);color:var(--paper)}
+.pb-h{margin:18px 0 2px;font-family:Caveat,cursive;font-weight:700;font-size:28px;color:var(--clay)}
+.ph{width:100%;min-height:58px;border:0;border-bottom:1.5px dashed #8C8475;background:transparent;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;padding:8px 0;text-align:left}
+.ph b{font-size:18px;font-weight:600;line-height:1.25}
+.ph span{font-size:14px;color:var(--ink-soft)}
+.ph span i{color:var(--ink)}
+.pb-note{margin:18px 0 0;font-size:13px;font-style:italic;color:var(--ink-soft);line-height:1.45}
+.pb-sos{margin-top:14px;padding:12px 14px;background:var(--note);box-shadow:2px 3px 0 rgba(43,42,40,.18);transform:rotate(-.6deg);font-size:14px;line-height:1.45}
+.empty{margin-top:18px;font-style:italic;color:var(--ink-soft)}
+.say{min-height:calc(100vh - var(--st) - var(--sb) - 140px);display:flex;flex-direction:column;justify-content:center;gap:18px}
+.say .card{background:var(--card);border:1.5px solid var(--ink);padding:26px 20px;transform:rotate(-.6deg);box-shadow:3px 4px 0 rgba(43,42,40,.15)}
+.say .vi{font-size:clamp(34px, 11vw, 54px);font-weight:600;line-height:1.15;word-wrap:break-word}
+.say .tr{margin-top:14px;font-family:Caveat,cursive;font-weight:700;font-size:28px;color:var(--clay)}
+.say .ru{margin-top:4px;font-size:17px}
+.say .hint{font-size:13px;font-style:italic;color:var(--ink-soft);text-align:center}
+.speak{align-self:center;height:50px;padding:0 22px;border:1.5px solid var(--ink);border-radius:25px;background:var(--card);display:flex;align-items:center;gap:8px;font-family:Caveat,cursive;font-weight:700;font-size:24px}
 </style>
 </head>
 <body>
@@ -279,7 +302,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611011740';
+  var BUILD = '202611011800';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -345,9 +368,16 @@ a{color:var(--ink-soft)}
     if (top === 'home') loadToday();
     maybeReload();
   }
-  function go(id){ haptic('light'); stack.push(id); render(); }
+  function go(id){
+    haptic('light');
+    if (stack[stack.length - 1] === 'phrasebook') pbState.scroll = $('page').querySelector('.scroll').scrollTop;
+    stack.push(id); render();
+  }
   function back(){ if (stack.length < 2) return; haptic('light'); stack.pop(); render(); }
   if (inTg) tg.BackButton.onClick(back);
+  document.addEventListener('input', function(e){
+    if (e.target.id === 'pbSearch') { pbState.q = e.target.value; $('pbList').innerHTML = pbListHtml(); }
+  });
 
   openBtn.addEventListener('click', function(){ haptic('medium'); stack = ['splash', 'home']; render(); });
   document.addEventListener('click', function(e){
@@ -358,6 +388,11 @@ a{color:var(--ink-soft)}
     var a = e.target.closest('[data-act]');
     if (a && a.getAttribute('data-act') === 'home-screen') { haptic('light'); try { tg.addToHomeScreen(); } catch(err){} }
     if (a && a.getAttribute('data-act') === 'back') back();
+    if (a && a.getAttribute('data-act') === 'speak') { var t = stack[stack.length - 1]; var ph = ALL[+t.slice(4)]; if (ph) { haptic('light'); speak(ph[0]); } }
+    var ch = e.target.closest('[data-cat]');
+    if (ch) { haptic('light'); pbState.cat = ch.getAttribute('data-cat'); pbState.scroll = 0;
+      Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(x){ x.setAttribute('aria-pressed', String(x === ch)); });
+      $('pbList').innerHTML = pbListHtml(); }
   });
 
   // ================= Внутренние экраны =================
@@ -379,10 +414,32 @@ a{color:var(--ink-soft)}
 
   function renderPage(id){
     var body = $('pageBody'), html = '';
-    if (PAGES[id]) {
+    if (PAGES[id] && id !== 'phrasebook') {
       var p = PAGES[id];
       html = '<h2>' + esc(p.title) + '</h2><p>' + esc(p.text) + '</p>' +
              '<div class="soon">Раздел готовим. Загляните чуть позже — новые разделы появятся здесь сами, ничего обновлять не нужно.</div>';
+    } else if (id === 'phrasebook') {
+      var cats = [{ id:'all', title:'Все' }].concat(PB ? PB.categories : []);
+      html = '<h2>Разговорник</h2>' +
+        '<input class="search" id="pbSearch" type="search" inputmode="search" autocomplete="off" placeholder="Найти: кофе, такси, сколько…" aria-label="Поиск по разговорнику" value="' + esc(pbState.q) + '">' +
+        '<div class="chips" role="group" aria-label="Темы">' + cats.map(function(c){
+          return '<button class="chip" type="button" data-cat="' + c.id + '" aria-pressed="' + (pbState.cat === c.id) + '">' + esc(c.title) + '</button>';
+        }).join('') + '</div>' +
+        '<div id="pbList">' + pbListHtml() + '</div>' +
+        (PB ? '<div class="pb-sos">' + esc(PB.emergency) + '</div><p class="pb-note">' + esc(PB.note) + ' Нажмите на фразу, чтобы показать её крупно.</p>' : '');
+      body.innerHTML = html + fallbackBack;
+      body.parentNode.scrollTop = pbState.scroll || 0;
+      return;
+    } else if (/^say:/.test(id)) {
+      var ph = ALL[+id.slice(4)];
+      if (!ph) { html = '<p class="empty">Загружаем фразы…</p>'; }
+      else {
+        var canSpeak = !!viVoice();
+        html = '<div class="say"><div class="card"><div class="vi" lang="vi">' + esc(ph[0]) + '</div>' +
+          '<div class="tr">«' + esc(ph[1]) + '»</div><div class="ru">' + esc(ph[2]) + '</div></div>' +
+          (canSpeak ? '<button class="speak" type="button" data-act="speak"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg>Послушать</button>' : '') +
+          '<div class="hint">покажите экран собеседнику</div></div>';
+      }
     } else if (id === 'cities') {
       html = '<h2>Город</h2><p>Начинаем с Нячанга, следом — остальные.</p><div class="list">' +
         CITIES.map(function(c){
@@ -507,47 +564,61 @@ a{color:var(--ink-soft)}
     });
   }
 
-  // ================= Фраза дня =================
-  var PHRASES = [
-    ['Xin chào', 'синь чао', 'здравствуйте'],
-    ['Cảm ơn', 'кам ын', 'спасибо'],
-    ['Không có gì', 'хонг ко зи', 'не за что'],
-    ['Xin lỗi', 'синь лой', 'извините'],
-    ['Bao nhiêu tiền?', 'бао ньеу тьен', 'сколько стоит?'],
-    ['Đắt quá!', 'дат куа', 'слишком дорого!'],
-    ['Bớt đi', 'бот ди', 'скиньте немного'],
-    ['Không cay', 'хонг кай', 'не остро, пожалуйста'],
-    ['Ngon quá!', 'нгон куа', 'очень вкусно!'],
-    ['Tính tiền', 'тинь тьен', 'посчитайте, пожалуйста'],
-    ['Không đá', 'хонг да', 'без льда'],
-    ['Ít đường', 'ит дыонг', 'поменьше сахара'],
-    ['Một cà phê sữa đá', 'мот ка фе сыа да', 'один кофе со льдом и сгущёнкой'],
-    ['Đi thẳng', 'ди тханг', 'прямо'],
-    ['Rẽ trái', 'зе чай', 'налево'],
-    ['Rẽ phải', 'зе фай', 'направо'],
-    ['Dừng ở đây', 'зынг о дэй', 'остановите здесь'],
-    ['Tôi không hiểu', 'той хонг хьеу', 'я не понимаю'],
-    ['Nhà vệ sinh ở đâu?', 'ня ве синь о дау', 'где туалет?'],
-    ['Có', 'ко', 'да'],
-    ['Không', 'хонг', 'нет'],
-    ['Nước', 'ныок', 'вода'],
-    ['Một, hai, ba, dô!', 'мот, хай, ба, зо', 'раз, два, три — до дна!'],
-    ['Tạm biệt', 'там бьет', 'до свидания'],
-    ['Hẹn gặp lại', 'хен гап лай', 'до встречи'],
-    ['Rất vui được gặp bạn', 'зат вуй дыок гап бан', 'рад знакомству'],
-    ['Chúc ngủ ngon', 'чук нгу нгон', 'спокойной ночи'],
-    ['Giúp tôi với!', 'зуп той вой', 'помогите!'],
-    ['Bao xa?', 'бао са', 'далеко?'],
-    ['Đồ chay', 'до чай', 'вегетарианская еда']
-  ];
-  (function(){
+  // ================= Разговорник: данные и фраза дня =================
+  var PB = null;                               // данные из data/phrases.json
+  var pbState = { q:'', cat:'all', scroll:0 };
+  var ALL = [];                                // плоский список фраз [вьет, произношение, перевод, категория]
+  function dayIndex(){
     var d;
     try { d = new Intl.DateTimeFormat('en-CA', { timeZone:CITY.tz }).format(new Date()); } catch(e){ d = new Date().toISOString().slice(0, 10); }
-    var day = Math.floor(Date.parse(d + 'T00:00:00Z') / 864e5);
-    var p = PHRASES[day % PHRASES.length];
+    return Math.floor(Date.parse(d + 'T00:00:00Z') / 864e5);
+  }
+  var phraseOfDay = -1;
+  function paintPhraseOfDay(){
+    var pool = [];
+    ALL.forEach(function(p, i){ if (p[3] !== 'num') pool.push(i); });
+    if (!pool.length) return;
+    phraseOfDay = pool[dayIndex() % pool.length];
+    var p = ALL[phraseOfDay];
     $('pVi').textContent = p[0];
     $('pRu').textContent = '«' + p[1] + '» — ' + p[2];
-  })();
+    document.querySelector('.phrase').setAttribute('data-go', 'say:' + phraseOfDay);
+  }
+  getJSON('data/phrases.json' + B, 10000).then(function(d){
+    PB = d; ALL = [];
+    d.categories.forEach(function(c){ c.items.forEach(function(it){ ALL.push([it[0], it[1], it[2], c.id]); }); });
+    paintPhraseOfDay();
+    var top = stack[stack.length - 1];
+    if (top === 'phrasebook' || /^say:/.test(top)) renderPage(top);
+  }).catch(function(){});
+
+  function norm(t){ return String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/ё/g, 'е'); }
+  function pbListHtml(){
+    if (!PB) return '<p class="empty">Загружаем фразы…</p>';
+    var q = norm(pbState.q.trim()), html = '', found = 0;
+    PB.categories.forEach(function(c){
+      if (pbState.cat !== 'all' && pbState.cat !== c.id) return;
+      var rows = '';
+      ALL.forEach(function(p, i){
+        if (p[3] !== c.id) return;
+        if (q && norm(p[0] + ' ' + p[1] + ' ' + p[2]).indexOf(q) < 0) return;
+        found++;
+        rows += '<button class="ph" type="button" data-go="say:' + i + '"><b>' + esc(p[0]) + '</b><span><i>«' + esc(p[1]) + '»</i> — ' + esc(p[2]) + '</span></button>';
+      });
+      if (rows) html += '<div class="pb-h">' + esc(c.title) + '</div>' + rows;
+    });
+    if (!found) html = '<p class="empty">Ничего не нашлось. Попробуйте другое слово.</p>';
+    return html;
+  }
+  // озвучка — только если в телефоне есть вьетнамский голос
+  function viVoice(){
+    try { return (speechSynthesis.getVoices() || []).filter(function(v){ return /^vi/i.test(v.lang); })[0] || null; } catch(e){ return null; }
+  }
+  try { speechSynthesis.onvoiceschanged = function(){ var t = stack[stack.length - 1]; if (/^say:/.test(t)) renderPage(t); }; } catch(e){}
+  function speak(text){
+    var v = viVoice(); if (!v) return;
+    try { speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(text); u.voice = v; u.lang = v.lang; u.rate = 0.8; speechSynthesis.speak(u); } catch(e){}
+  }
 
   // ================= Автообновление =================
   // version.txt хранит номер сборки; перезагружаемся только в безопасный момент — на заставке или на главном,
