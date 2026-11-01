@@ -12,7 +12,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{
-  --paper:#FAE6C8; --card:#FFFCF4; --ink:#2B2A28; --ink-soft:#5A554C; --clay:#C0533A; --sea:#7FB7BE;
+  --paper:#FAE6C8; --card:#FFFCF4; --ink:#2B2A28; --ink-soft:#5A554C; --clay:#C0533A; --sea:#7FB7BE; --ochre:#F0B85C; --note:#F9E08A;
   --st:max(env(safe-area-inset-top), calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)));
   --sb:max(env(safe-area-inset-bottom), calc(var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px)));
 }
@@ -25,10 +25,13 @@ body{
   font-family:Lora,Georgia,serif;
   -webkit-user-select:none;user-select:none;
 }
-button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
+a{color:var(--ink-soft)}
+.hand{font-family:Caveat,cursive;font-weight:700}
+.screen{position:fixed;inset:0;background:var(--paper)}
 
 /* ---------- Заставка ---------- */
-#splash{position:fixed;inset:0;overflow:hidden;background:var(--paper)}
+#splash{overflow:hidden}
 /* сцена 9:14 по ширине экрана, снизу растворяется в бумаге */
 #stage{
   position:absolute;top:0;left:50%;transform:translateX(-50%);
@@ -79,20 +82,94 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
   color:var(--ink);font-family:Caveat,cursive;font-size:26px;font-weight:700;
 }
 
-/* ---------- Временная заглушка главного экрана ---------- */
-#guide{
-  position:fixed;inset:0;background:var(--paper);
-  padding:calc(var(--st) + 24px) 24px calc(var(--sb) + 24px);
-  display:flex;flex-direction:column;gap:12px;
+/* ---------- Главный экран ---------- */
+.lined{
+  background-color:var(--paper);
+  background-image:linear-gradient(rgba(43,42,40,.055) 1px, transparent 1px);
+  background-size:100% 28px;
 }
-#guide h2{margin:0;font-family:Caveat,cursive;font-weight:700;font-size:44px}
-#guide p{margin:0;font-size:16px;line-height:1.45}
-#back{align-self:flex-start;height:44px;padding:0 16px;border:1.5px dashed var(--ink);border-radius:6px;background:transparent;color:var(--ink);font-family:Caveat,cursive;font-size:22px;font-weight:700}
+.scroll{
+  position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  padding:calc(var(--st) + 14px) 0 calc(var(--sb) + 96px);
+}
+.wrap{max-width:480px;margin:0 auto;padding:0 22px}
+
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 12px}
+.top h2{margin:0;font-family:Caveat,cursive;font-weight:700;font-size:min(46px, 13vw);line-height:.95;white-space:nowrap}
+.top svg.underline{display:block;margin-top:1px}
+.top .sub{display:block;margin-top:3px;font-size:13px;font-style:italic;color:var(--ink-soft)}
+.city{
+  flex:none;height:44px;padding:0 12px;border:1.5px dashed var(--ink);border-radius:8px;background:transparent;
+  display:flex;align-items:center;gap:4px;font-family:Caveat,cursive;font-weight:700;font-size:23px;
+}
+
+.today{margin:24px 0 0;position:relative;transform:rotate(-1.1deg)}
+.tape{position:absolute;left:50%;top:-12px;width:86px;height:24px;margin-left:-43px;background:rgba(214,190,130,.65);transform:rotate(2deg);z-index:1}
+.today .card{background:var(--card);border:1.5px solid var(--ink);padding:18px 18px 14px;position:relative;overflow:hidden;min-height:176px}
+.blob1{position:absolute;right:-26px;top:-22px;width:150px;height:120px;border-radius:58% 42% 63% 37% / 45% 55% 45% 55%;background:rgba(127,183,190,.42)}
+.blob2{position:absolute;right:26px;top:16px;width:54px;height:54px;border-radius:52% 48% 55% 45% / 50% 46% 54% 50%;background:rgba(240,184,92,.75)}
+.today .in{position:relative;display:flex;flex-direction:column;gap:4px}
+.today .date{font-family:Caveat,cursive;font-weight:700;font-size:25px}
+.temp-row{display:flex;align-items:center;gap:12px}
+.temp{flex:none;font-family:Caveat,cursive;font-weight:700;font-size:62px;line-height:1}
+.wtext{flex:1;min-width:0;font-size:14px;line-height:1.35}
+.facts{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:#4A463F}
+.facts span[hidden]{display:none}
+.updated{margin-top:8px;font-size:11px;color:var(--ink-soft);font-style:italic}
+.updated a{color:var(--ink-soft)}
+
+.phrase{
+  display:block;margin:22px 0 0 auto;width:min(260px, 78%);text-align:left;
+  transform:rotate(1.4deg);background:var(--note);border:0;padding:12px 14px;
+  box-shadow:2px 3px 0 rgba(43,42,40,.18);
+}
+.phrase small{display:block;font-size:12px;font-style:italic;color:#4A463F}
+.phrase b{display:block;font-family:Caveat,cursive;font-weight:700;font-size:30px;line-height:1.05;margin:2px 0}
+.phrase span{font-size:13px}
+
+.grid{margin:20px 0 0;display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));column-gap:18px}
+.grid button{
+  height:56px;border:0;border-bottom:1.5px dashed #8C8475;background:transparent;
+  display:flex;align-items:center;gap:10px;padding:0;text-align:left;
+  font-family:Caveat,cursive;font-weight:700;font-size:24px;white-space:nowrap;
+}
+.grid svg, .tabs svg, .row svg{flex:none}
+
+.tabs{
+  position:absolute;left:0;right:0;bottom:0;z-index:5;
+  border-top:1.5px solid var(--ink);background:var(--paper);
+  padding:6px 10px calc(var(--sb) + 8px);
+}
+.tabs .in{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(4, minmax(0, 1fr))}
+.tabs button{
+  height:48px;border:0;background:transparent;color:#4A463F;
+  font-family:Caveat,cursive;font-weight:600;font-size:min(22px, 6vw);white-space:nowrap;
+}
+.tabs button[aria-current="page"]{
+  color:var(--ink);font-weight:700;
+  text-decoration:underline;text-decoration-color:var(--clay);text-decoration-thickness:3px;text-underline-offset:5px;
+}
+
+/* ---------- Внутренние экраны и листы ---------- */
+.page h2{margin:0 0 10px;font-family:Caveat,cursive;font-weight:700;font-size:44px;line-height:1}
+.page p{margin:0 0 12px;font-size:16px;line-height:1.5}
+.soon{margin-top:18px;padding:14px 16px;border:1.5px dashed var(--ink);border-radius:8px;transform:rotate(-.5deg);font-size:15px;line-height:1.45}
+.list{margin-top:10px}
+.row{
+  width:100%;min-height:56px;border:0;border-bottom:1.5px dashed #8C8475;background:transparent;
+  display:flex;align-items:center;gap:12px;padding:8px 0;text-align:left;font-size:16px;
+}
+.row .t{flex:1;min-width:0}
+.row .t b{display:block;font-family:Caveat,cursive;font-weight:700;font-size:24px;line-height:1.1}
+.row .t small{display:block;font-size:13px;color:var(--ink-soft);font-style:italic}
+.row .mark{font-size:13px;font-style:italic;color:var(--ink-soft)}
+.fallback-back{margin-top:22px;height:44px;padding:0 16px;border:1.5px dashed var(--ink);border-radius:8px;background:transparent;font-family:Caveat,cursive;font-size:22px;font-weight:700}
 </style>
 </head>
 <body>
 
-<section id="splash" aria-label="Заставка">
+<!-- ===== Заставка ===== -->
+<section id="splash" class="screen" aria-label="Заставка">
   <div id="stage">
     <video id="loop" muted playsinline webkit-playsinline loop preload="auto"
            poster="media/loop-first.jpg?b=202611011700" aria-hidden="true"></video>
@@ -110,15 +187,101 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
   <button id="tap" type="button" hidden>Нажмите, чтобы начать</button>
 </section>
 
-<section id="guide" hidden aria-label="Главный экран">
-  <h2>Синь Чао!</h2>
-  <p>Здесь будет главный экран: «Сегодня», карта мест, еда, маршруты, практичное, разговорник и афиша.</p>
-  <button id="back" type="button" hidden>← назад</button>
+<!-- ===== Главный экран ===== -->
+<section id="home" class="screen lined" hidden aria-label="Сегодня">
+  <div class="scroll">
+    <div class="wrap">
+      <header class="top">
+        <div>
+          <h2>Синь Чао!</h2>
+          <svg class="underline" aria-hidden="true" width="170" height="12" viewBox="0 0 170 12"><path d="M2 8 C40 2, 90 12, 168 4" fill="none" stroke="#C0533A" stroke-width="3" stroke-linecap="round"/></svg>
+          <span class="sub">путевые заметки по Вьетнаму</span>
+        </div>
+        <button class="city" type="button" data-go="cities" aria-label="Город: Нячанг. Сменить город">
+          <span id="cityName">Нячанг</span>
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+      </header>
+
+      <div class="today">
+        <div class="tape" aria-hidden="true"></div>
+        <div class="card">
+          <div class="blob1" aria-hidden="true"></div>
+          <div class="blob2" aria-hidden="true"></div>
+          <div class="in">
+            <span class="date" id="tDate">Сегодня</span>
+            <div class="temp-row">
+              <span class="temp" id="tTemp">…</span>
+              <span class="wtext" id="tText">смотрим в окно…</span>
+            </div>
+            <div class="facts">
+              <span id="tSea" hidden></span>
+              <span id="tSunset" hidden></span>
+              <span id="tRate" hidden></span>
+            </div>
+            <div class="updated" id="tUpd"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="phrase" type="button" data-go="phrasebook" aria-label="Фраза дня, открыть разговорник">
+        <small>фраза дня</small>
+        <b id="pVi">Xin chào</b>
+        <span id="pRu">«синь чао» — здравствуйте</span>
+      </button>
+
+      <nav class="grid" aria-label="Разделы">
+        <button type="button" data-go="map">
+          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C0533A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z"/><circle cx="12" cy="10" r="2"/></svg>
+          Карта мест
+        </button>
+        <button type="button" data-go="food">
+          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C0533A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M9 7l3-4M14 7l2-3"/></svg>
+          Еда
+        </button>
+        <button type="button" data-go="routes">
+          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C0533A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7" stroke-dasharray="2 3"/></svg>
+          Маршруты
+        </button>
+        <button type="button" data-go="practical">
+          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C0533A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12.5h2M3 10h18"/></svg>
+          Практичное
+        </button>
+        <button type="button" data-go="phrasebook">
+          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C0533A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v10H9l-5 4z"/></svg>
+          Разговорник
+        </button>
+        <button type="button" data-go="events">
+          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C0533A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>
+          Афиша
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <nav class="tabs" aria-label="Нижнее меню">
+    <div class="in">
+      <button type="button" aria-current="page" data-tab="home">Сегодня</button>
+      <button type="button" data-go="map">Карта</button>
+      <button type="button" data-go="food">Еда</button>
+      <button type="button" data-go="more">Ещё</button>
+    </div>
+  </nav>
+</section>
+
+<!-- ===== Внутренний экран (содержимое подставляется) ===== -->
+<section id="page" class="screen lined page" hidden>
+  <div class="scroll">
+    <div class="wrap" id="pageBody"></div>
+  </div>
 </section>
 
 <script>
 (function(){
   var B = '?b=202611011700';
+  var BUILD = '202611011730';
+  var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
+
   var tg = window.Telegram && window.Telegram.WebApp;
   var inTg = !!(tg && tg.initData);
 
@@ -134,16 +297,12 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
   function haptic(kind){
     try { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(kind || 'light'); } catch(e){}
   }
+  function $(id){ return document.getElementById(id); }
+  function store(k, v){ try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch(e){ return null; } }
+  function openLink(url){ try { if (tg && tg.openLink) { tg.openLink(url); return; } } catch(e){} window.open(url, '_blank', 'noopener'); }
 
-  var loopV = document.getElementById('loop');
-  var logo = document.getElementById('logo');
-  var openBtn = document.getElementById('open');
-  var tapBtn = document.getElementById('tap');
-  var splash = document.getElementById('splash');
-  var guide = document.getElementById('guide');
-  var backBtn = document.getElementById('back');
-
-  // Заставка — бесшовная петля: последний кадр ролика совпадает с первым
+  // ================= Заставка =================
+  var loopV = $('loop'), logo = $('logo'), openBtn = $('open'), tapBtn = $('tap'), splash = $('splash');
   loopV.src = 'media/loop.mp4' + B;
   loopV.muted = true;
   var started = false, shown = false;
@@ -158,45 +317,265 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
     var p = loopV.play();
     if (p && p.catch) p.catch(function(){ started = false; tapBtn.hidden = false; });
   }
-  function start(){
-    if (started) return;
-    started = true;
-    play();
-  }
+  function start(){ if (started) return; started = true; play(); }
   loopV.addEventListener('canplaythrough', start, { once: true });
   setTimeout(start, 3500);              // на медленной сети не ждём буфер бесконечно
   setTimeout(showUi, 2500);             // кнопка появится, даже если видео грузится долго
   loopV.addEventListener('playing', showUi);
-  // показываем видео, только когда реально пошли кадры — под ним постер = первый кадр
   loopV.addEventListener('timeupdate', function(){
     if (!loopV.classList.contains('on') && loopV.currentTime > 0.04) loopV.classList.add('on');
   });
   loopV.addEventListener('error', showUi);
   tapBtn.addEventListener('click', function(){ tapBtn.hidden = true; started = true; play(); showUi(); });
 
-  // Android ставит видео на паузу при сворачивании — продолжаем
-  document.addEventListener('visibilitychange', function(){
-    if (!document.hidden && started && !splash.hidden && loopV.paused) loopV.play().catch(function(){});
+  // ================= Навигация =================
+  // стек экранов: заставка → главный → внутренний; «Назад» — родная кнопка Telegram
+  var stack = ['splash'];
+  var screens = { splash: splash, home: $('home'), page: $('page') };
+
+  function render(){
+    var top = stack[stack.length - 1];
+    var screenId = top === 'splash' || top === 'home' ? top : 'page';
+    Object.keys(screens).forEach(function(k){ screens[k].hidden = (k !== screenId); });
+    if (screenId === 'page') renderPage(top);
+    if (top === 'splash') { if (started) loopV.play().catch(function(){}); }
+    else { try { loopV.pause(); } catch(e){} }
+    var canBack = stack.length > 1;
+    if (inTg) { try { canBack ? tg.BackButton.show() : tg.BackButton.hide(); } catch(e){} }
+    if (top === 'home') loadToday();
+    maybeReload();
+  }
+  function go(id){ haptic('light'); stack.push(id); render(); }
+  function back(){ if (stack.length < 2) return; haptic('light'); stack.pop(); render(); }
+  if (inTg) tg.BackButton.onClick(back);
+
+  openBtn.addEventListener('click', function(){ haptic('medium'); stack = ['splash', 'home']; render(); });
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('[data-go]');
+    if (b) { go(b.getAttribute('data-go')); return; }
+    var l = e.target.closest('[data-link]');
+    if (l) { e.preventDefault(); openLink(l.getAttribute('data-link')); return; }
+    var a = e.target.closest('[data-act]');
+    if (a && a.getAttribute('data-act') === 'home-screen') { haptic('light'); try { tg.addToHomeScreen(); } catch(err){} }
+    if (a && a.getAttribute('data-act') === 'back') back();
   });
 
-  // --- Переход в гид и обратно ---
-  function openGuide(){
-    haptic('medium');
-    splash.hidden = true;
-    guide.hidden = false;
-    try { loopV.pause(); } catch(e){}
-    if (inTg) tg.BackButton.show(); else backBtn.hidden = false;
+  // ================= Внутренние экраны =================
+  var PAGES = {
+    map:        { title:'Карта мест', text:'Пляжи, кафе, рынки, смотровые и мои проверенные места — на одной карте, с фильтрами и маршрутом от вас.' },
+    food:       { title:'Еда', text:'Что попробовать во Вьетнаме, как это называется в меню и где это готовят вкусно.' },
+    routes:     { title:'Маршруты', text:'Готовые прогулки и поездки на день: по городу, к водопадам, по островам.' },
+    practical:  { title:'Практичное', text:'Деньги и обмен, въезд и визы, связь и интернет, такси и байки — коротко и по делу.' },
+    phrasebook: { title:'Разговорник', text:'Главные фразы с русским произношением: в кафе, на рынке, в такси.' },
+    events:     { title:'Афиша', text:'Праздники, фестивали, концерты и события в городе на ближайшие дни.' }
+  };
+  var CITIES = [
+    { name:'Нячанг', on:true },
+    { name:'Дананг и Хойан' }, { name:'Далат' }, { name:'Фукуок' }, { name:'Хошимин' }, { name:'Ханой' }
+  ];
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var fallbackBack = inTg ? '' : '<button class="fallback-back" type="button" data-act="back">← назад</button>';
+
+  function renderPage(id){
+    var body = $('pageBody'), html = '';
+    if (PAGES[id]) {
+      var p = PAGES[id];
+      html = '<h2>' + esc(p.title) + '</h2><p>' + esc(p.text) + '</p>' +
+             '<div class="soon">Раздел готовим. Загляните чуть позже — новые разделы появятся здесь сами, ничего обновлять не нужно.</div>';
+    } else if (id === 'cities') {
+      html = '<h2>Город</h2><p>Начинаем с Нячанга, следом — остальные.</p><div class="list">' +
+        CITIES.map(function(c){
+          return '<div class="row"><span class="t"><b>' + esc(c.name) + '</b></span><span class="mark">' + (c.on ? 'вы здесь' : 'скоро') + '</span></div>';
+        }).join('') + '</div>';
+    } else if (id === 'more') {
+      html = '<h2>Ещё</h2><div class="list">' +
+        ['routes','practical','phrasebook','events'].map(function(k){
+          return '<button class="row" type="button" data-go="' + k + '"><span class="t"><b>' + PAGES[k].title + '</b></span>' +
+                 '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>';
+        }).join('') +
+        (homeScreenOk ? '<button class="row" type="button" data-act="home-screen"><span class="t"><b>На главный экран</b><small>значок гида рядом с другими приложениями</small></span></button>' : '') +
+        '<button class="row" type="button" data-link="https://t.me/sinchaoguide"><span class="t"><b>Канал «Синь Чао»</b><small>новые места и обновления гида</small></span></button>' +
+        '</div>';
+    }
+    body.innerHTML = html + fallbackBack;
+    body.parentNode.scrollTop = 0;
   }
-  function closeGuide(){
-    haptic('light');
-    guide.hidden = true;
-    splash.hidden = false;
-    if (started) loopV.play().catch(function(){});
-    if (inTg) tg.BackButton.hide(); else backBtn.hidden = true;
+
+  // ярлык на рабочий стол — только если Telegram это поддерживает и ярлыка ещё нет
+  var homeScreenOk = false;
+  try {
+    if (inTg && tg.checkHomeScreenStatus) tg.checkHomeScreenStatus(function(s){ homeScreenOk = (s !== 'unsupported' && s !== 'added'); });
+  } catch(e){}
+
+  // ================= «Сегодня»: дата, погода, море, закат, курс =================
+  var WMO = {
+    0:'ясно', 1:'почти ясно', 2:'переменная облачность', 3:'пасмурно',
+    45:'туман', 48:'туман', 51:'морось', 53:'морось', 55:'сильная морось',
+    61:'небольшой дождь', 63:'дождь', 65:'сильный дождь',
+    80:'местами ливни', 81:'ливни', 82:'сильные ливни',
+    95:'гроза', 96:'гроза с градом', 99:'гроза с градом'
+  };
+  function fmtDate(){
+    try { return 'Сегодня, ' + new Intl.DateTimeFormat('ru-RU', { day:'numeric', month:'long', timeZone:CITY.tz }).format(new Date()); }
+    catch(e){ return 'Сегодня'; }
   }
-  openBtn.addEventListener('click', openGuide);
-  backBtn.addEventListener('click', closeGuide);
-  if (inTg) tg.BackButton.onClick(closeGuide);
+  function hhmm(ts){
+    try { return new Intl.DateTimeFormat('ru-RU', { hour:'2-digit', minute:'2-digit', timeZone:CITY.tz }).format(new Date(ts)); }
+    catch(e){ return ''; }
+  }
+  function num(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+
+  // текст дня: что сейчас и когда ждать дождя
+  function weatherText(w){
+    var now = WMO[w.current.weather_code] || '';
+    var hint = '';
+    var times = w.hourly.time, probs = w.hourly.precipitation_probability;
+    var nowIso = w.current.time;
+    for (var i = 0; i < times.length; i++) {
+      if (times[i] >= nowIso.slice(0, 13) && times[i].slice(0, 10) === nowIso.slice(0, 10) && probs[i] >= 50) {
+        hint = times[i].slice(11, 13) === nowIso.slice(11, 13) ? 'сейчас может пойти дождь — зонт!' : 'к ' + times[i].slice(11, 16) + ' возможен дождь — зонт!';
+        break;
+      }
+    }
+    if (!hint) hint = (w.daily.precipitation_probability_max[0] || 0) < 30 ? 'дождя не обещают' : 'дождь маловероятен';
+    return (now ? now + ',' : '') + '\n' + hint;
+  }
+
+  function paintWeather(w){
+    if (!w) return;
+    $('tTemp').textContent = (Math.round(w.current.temperature_2m) > 0 ? '+' : '') + Math.round(w.current.temperature_2m) + '°';
+    var t = weatherText(w).split('\n');
+    $('tText').innerHTML = esc(t[0]) + '<br>' + esc(t[1]);
+    var ss = w.daily.sunset && w.daily.sunset[0];
+    if (ss) { $('tSunset').textContent = 'закат ' + ss.slice(11, 16); $('tSunset').hidden = false; }
+  }
+  function paintSea(m){
+    if (!m || !m.current || m.current.sea_surface_temperature == null) return;
+    $('tSea').textContent = 'море +' + Math.round(m.current.sea_surface_temperature) + '°';
+    $('tSea').hidden = false;
+  }
+  function paintRate(r){
+    if (!r || !r.rates || !r.rates.VND) return;
+    var rub = 1e6 / r.rates.VND;                    // база — рубль: сколько донгов за 1 ₽
+    $('tRate').textContent = '1 млн ₫ ≈ ' + num(Math.round(rub / 10) * 10) + ' ₽';
+    $('tRate').hidden = false;
+  }
+  function paintUpdated(at, offline){
+    $('tUpd').innerHTML = (offline ? 'нет связи · ' : '') + (at ? 'обновлено в ' + esc(hhmm(at)) + ' · ' : '') +
+      '<a href="#" data-link="https://open-meteo.com/">погода: Open-Meteo</a> · ' +
+      '<a href="#" data-link="https://www.exchangerate-api.com">курс: Rates By Exchange Rate API</a>';
+  }
+
+  function getJSON(url, ms){
+    return new Promise(function(res, rej){
+      var done = false, t = setTimeout(function(){ if (!done) { done = true; rej(new Error('timeout')); } }, ms || 8000);
+      fetch(url).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function(j){ if (!done) { done = true; clearTimeout(t); res(j); } })
+        .catch(function(e){ if (!done) { done = true; clearTimeout(t); rej(e); } });
+    });
+  }
+  function cached(key, maxAgeMs, url, paint){
+    var c = store(key);
+    if (c && c.data) paint(c.data);
+    if (c && c.at && Date.now() - c.at < maxAgeMs) return Promise.resolve(c.at);
+    return getJSON(url).then(function(d){ store(key, { at: Date.now(), data: d }); paint(d); return Date.now(); })
+      .catch(function(){ return c ? -c.at : -1; });   // минус — данные из кэша, свежих нет
+  }
+
+  var loadingToday = false;
+  function loadToday(){
+    $('tDate').textContent = fmtDate();
+    if (loadingToday) return;
+    loadingToday = true;
+    var q = 'latitude=' + CITY.lat + '&longitude=' + CITY.lon + '&timezone=' + encodeURIComponent(CITY.tz);
+    var wUrl = 'https://api.open-meteo.com/v1/forecast?' + q +
+      '&current=temperature_2m,weather_code&hourly=precipitation_probability' +
+      '&daily=sunset,precipitation_probability_max&forecast_days=1';
+    var mUrl = 'https://marine-api.open-meteo.com/v1/marine?latitude=' + CITY.seaLat + '&longitude=' + CITY.seaLon +
+      '&current=sea_surface_temperature&timezone=' + encodeURIComponent(CITY.tz);
+    var rUrl = 'https://open.er-api.com/v6/latest/RUB';
+    Promise.all([
+      cached('sc_w_' + CITY.id, 30 * 60e3, wUrl, paintWeather),
+      cached('sc_m_' + CITY.id, 3 * 3600e3, mUrl, paintSea),
+      cached('sc_r', 6 * 3600e3, rUrl, paintRate)
+    ]).then(function(at){
+      loadingToday = false;
+      var w = at[0];
+      if (w === -1) { $('tTemp').textContent = '—'; $('tText').textContent = 'погода не загрузилась, попробуем позже'; }
+      paintUpdated(Math.abs(w) > 1 ? Math.abs(w) : null, w < 0);
+    });
+  }
+
+  // ================= Фраза дня =================
+  var PHRASES = [
+    ['Xin chào', 'синь чао', 'здравствуйте'],
+    ['Cảm ơn', 'кам ын', 'спасибо'],
+    ['Không có gì', 'хонг ко зи', 'не за что'],
+    ['Xin lỗi', 'синь лой', 'извините'],
+    ['Bao nhiêu tiền?', 'бао ньеу тьен', 'сколько стоит?'],
+    ['Đắt quá!', 'дат куа', 'слишком дорого!'],
+    ['Bớt đi', 'бот ди', 'скиньте немного'],
+    ['Không cay', 'хонг кай', 'не остро, пожалуйста'],
+    ['Ngon quá!', 'нгон куа', 'очень вкусно!'],
+    ['Tính tiền', 'тинь тьен', 'посчитайте, пожалуйста'],
+    ['Không đá', 'хонг да', 'без льда'],
+    ['Ít đường', 'ит дыонг', 'поменьше сахара'],
+    ['Một cà phê sữa đá', 'мот ка фе сыа да', 'один кофе со льдом и сгущёнкой'],
+    ['Đi thẳng', 'ди тханг', 'прямо'],
+    ['Rẽ trái', 'зе чай', 'налево'],
+    ['Rẽ phải', 'зе фай', 'направо'],
+    ['Dừng ở đây', 'зынг о дэй', 'остановите здесь'],
+    ['Tôi không hiểu', 'той хонг хьеу', 'я не понимаю'],
+    ['Nhà vệ sinh ở đâu?', 'ня ве синь о дау', 'где туалет?'],
+    ['Có', 'ко', 'да'],
+    ['Không', 'хонг', 'нет'],
+    ['Nước', 'ныок', 'вода'],
+    ['Một, hai, ba, dô!', 'мот, хай, ба, зо', 'раз, два, три — до дна!'],
+    ['Tạm biệt', 'там бьет', 'до свидания'],
+    ['Hẹn gặp lại', 'хен гап лай', 'до встречи'],
+    ['Rất vui được gặp bạn', 'зат вуй дыок гап бан', 'рад знакомству'],
+    ['Chúc ngủ ngon', 'чук нгу нгон', 'спокойной ночи'],
+    ['Giúp tôi với!', 'зуп той вой', 'помогите!'],
+    ['Bao xa?', 'бао са', 'далеко?'],
+    ['Đồ chay', 'до чай', 'вегетарианская еда']
+  ];
+  (function(){
+    var d;
+    try { d = new Intl.DateTimeFormat('en-CA', { timeZone:CITY.tz }).format(new Date()); } catch(e){ d = new Date().toISOString().slice(0, 10); }
+    var day = Math.floor(Date.parse(d + 'T00:00:00Z') / 864e5);
+    var p = PHRASES[day % PHRASES.length];
+    $('pVi').textContent = p[0];
+    $('pRu').textContent = '«' + p[1] + '» — ' + p[2];
+  })();
+
+  // ================= Автообновление =================
+  // version.txt хранит номер сборки; перезагружаемся только в безопасный момент — на заставке или на главном,
+  // сохраняя все параметры адреса и хэш с данными запуска Telegram
+  var newBuild = null;
+  function checkVersion(){
+    fetch('version.txt?t=' + Date.now(), { cache:'no-store' }).then(function(r){ return r.ok ? r.text() : ''; })
+      .then(function(t){ t = (t || '').trim(); if (t && t !== BUILD) { newBuild = t; maybeReload(); } }).catch(function(){});
+  }
+  function maybeReload(){
+    if (!newBuild) return;
+    var top = stack[stack.length - 1];
+    if (top !== 'splash' && top !== 'home') return;
+    var u = new URL(location.href);
+    u.searchParams.set('v', newBuild);
+    location.replace(u.toString());
+  }
+  setTimeout(checkVersion, 4000);
+  setInterval(checkVersion, 5 * 60e3);
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) return;
+    checkVersion();
+    // Android ставит видео на паузу при сворачивании — продолжаем
+    if (started && !splash.hidden && loopV.paused) loopV.play().catch(function(){});
+    if (!screens.home.hidden) loadToday();
+  });
+
+  render();
 })();
 </script>
 </body>
