@@ -399,7 +399,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611012110';
+  var BUILD = '202611012120';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -589,7 +589,7 @@ a{color:var(--ink-soft)}
             '<span>' + esc(d.price) + ' · ' + ['', 'недорого', 'средне', 'дорого'][d.price.length] + '</span></div>' +
           '<p style="margin-top:12px">' + esc(d.short) + '</p>' +
           (d.contains && d.contains.length ? '<p class="fd-contains"><b>Обычно в составе:</b> ' + esc(d.contains.join(', ')) + '.<br><small style="color:var(--ink-soft)">Рецепт в каждом кафе свой — при аллергии спросите.</small></p>' : '') +
-          (d.photo ? '<figure class="fd-photo" style="margin-left:0;margin-right:0"><img src="' + esc(d.photo) + '" alt="' + esc(d.ru) + ' — фото" loading="lazy" decoding="async">' +
+          (d.photo ? '<figure class="fd-photo" style="margin-left:0;margin-right:0"><img src="' + esc(d.photo) + '" alt="' + esc(d.ru) + ' — фото" loading="lazy" decoding="async" onerror="this.closest(\'figure\').remove()">' +
             '<small>Фото: ' + (d.creditUrl ? '<a href="#" data-link="' + esc(d.creditUrl) + '">' + esc(d.credit) + '</a>' : esc(d.credit)) + '</small></figure>' : '') +
           '<div class="fd-acts"><button type="button" data-go="order:' + d.id + '">Показать официанту</button>' +
             '<button type="button" data-act="food-near">Где поесть рядом</button></div>';
@@ -702,7 +702,7 @@ a{color:var(--ink-soft)}
   function getJSON(url, ms){
     return new Promise(function(res, rej){
       var done = false, t = setTimeout(function(){ if (!done) { done = true; rej(new Error('timeout')); } }, ms || 8000);
-      fetch(url).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+      fetch(url, { cache:'no-cache' }).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
         .then(function(j){ if (!done) { done = true; clearTimeout(t); res(j); } })
         .catch(function(e){ if (!done) { done = true; clearTimeout(t); rej(e); } });
     });
@@ -990,7 +990,7 @@ a{color:var(--ink-soft)}
   function loadFood(){
     if (FOOD || foodLoading) return;
     foodLoading = true;
-    getJSON('data/food.json' + B + '&h=' + Math.floor(Date.now() / 36e5), 10000).then(function(d){
+    getJSON('data/food.json?v=' + BUILD + '&d=' + Math.floor(Date.now() / 6e5), 10000).then(function(d){
       FOOD = d; foodLoading = false;
       var t = stack[stack.length - 1];
       if (t === 'food' || /^(dish|order):/.test(t)) renderPage(t);
