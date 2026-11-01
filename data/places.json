@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-01T14:35Z",
+ "updated": "2026-11-01T14:44Z",
  "places": [
   {
    "id": "8e6544ebea",
@@ -15,6 +15,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "Nguyễn Đình Chiểu, Phường Bắc Nha Trang, Nha Trang",
+   "addrAuto": true,
    "photo": "media/places/8e6544ebea.jpg?v=30f7a6e8",
    "credit": "Phương Huy (thảo luận), Public domain",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:H%C3%B2n_ch%E1%BB%93ng_Nha_Trang_n%C4%83m_2016_(24).jpg"
@@ -33,6 +35,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "Trần Phú, Phường Nha Trang, Nha Trang",
+   "addrAuto": true,
    "photo": "media/places/7b6b0784ae.jpg?v=833d260c",
    "credit": "Lyn Gateley, CC BY 2.0",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:Bao_Dai_Villa,_Nha_Trang_1.jpg"
@@ -51,6 +55,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "Trần Phú, Phước Hòa, Nha Trang",
+   "addrAuto": true,
    "photo": "media/places/8abb10250c.jpg?v=5a471f61",
    "credit": "Phương Huy, CC BY-SA 4.0",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:Nha_Trang_n%C4%83m_2013_(b%C3%A3i_bi%E1%BB%83n_c%C3%A1t_v%C3%A0ng)_(1).jpg"
@@ -68,7 +74,9 @@
    "price": "",
    "hours": "",
    "checked": "",
-   "source": "open"
+   "source": "open",
+   "addr": "Xã Cam Lâm",
+   "addrAuto": true
   },
   {
    "id": "4d35d9db83",
@@ -84,6 +92,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "Section, Phường Bắc Nha Trang, Nha Trang",
+   "addrAuto": true,
    "photo": "media/places/4d35d9db83.jpg?v=3c604c0f",
    "credit": "Tdangkhoa, CC BY-SA 3.0",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:N%C3%BAi_C%C3%B4_Ti%C3%AAn,_Nha_Trang,_bu%C3%B4i_s%C3%A1ng.jpg"
@@ -102,6 +112,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "Đường Hà Huy Tập, Phường Đông Ninh Hòa, Khánh Hòa",
+   "addrAuto": true,
    "photo": "media/places/399c983eab.jpg?v=931595b2",
    "credit": "Michelle, CC BY-SA 2.0",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:Doc_Let_Beach.jpg"
@@ -120,6 +132,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "Festival Square, Phường Nha Trang, Nha Trang",
+   "addrAuto": true,
    "photo": "media/places/977706ed79.jpg?v=6b9f5d78",
    "credit": "Rayrayokocha, CC BY 4.0",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:Nha_Trang_Bay_and_Vinwonders._Nha_Trang,_Vietnam._June_2025.jpg"
@@ -137,7 +151,9 @@
    "price": "",
    "hours": "",
    "checked": "",
-   "source": "open"
+   "source": "open",
+   "addr": "Ngô Đến, Phường Tây Nha Trang, Nha Trang",
+   "addrAuto": true
   },
   {
    "id": "f8df65720e",
@@ -153,6 +169,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "Nha Trang",
+   "addrAuto": true,
    "photo": "media/places/f8df65720e.jpg?v=7825c00a",
    "credit": "Nguyen Hung Vu, CC BY 2.0",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:Hon_Mun_island_(H%C3%B2n_Mun),_Cam_Ranh,_Nha_Trang,_Vi%E1%BB%87t_Nam_20140518_105634_(taken_with_Samsung_Galaxy_Note_3).jpg"
@@ -170,7 +188,9 @@
    "price": "",
    "hours": "",
    "checked": "",
-   "source": "open"
+   "source": "open",
+   "addr": "Đường đi Khu du lịch thác Yang Bay, Xã Khánh Vĩnh",
+   "addrAuto": true
   },
   {
    "id": "76177187ac",
@@ -185,7 +205,9 @@
    "price": "",
    "hours": "",
    "checked": "",
-   "source": "open"
+   "source": "open",
+   "addr": "Nguyễn Thi, Phước Hòa, Nha Trang",
+   "addrAuto": true
   },
   {
    "id": "ca6fdc2dca",
@@ -201,6 +223,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "Nguyễn Hồng Sơn, Phường Nha Trang, Nha Trang",
+   "addrAuto": true,
    "photo": "media/places/ca6fdc2dca.jpg?v=1eeddc7a",
    "credit": "calflier001, CC BY-SA 2.0",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:CHO_DAM_MARKET_NHA_TRANG_VIETNAM_JAN_2012_(6832785236).jpg"
@@ -218,7 +242,9 @@
    "price": "",
    "hours": "",
    "checked": "",
-   "source": "open"
+   "source": "open",
+   "addr": "49 Đường Ngô Gia Tự, Phước Hòa, Nha Trang",
+   "addrAuto": true
   },
   {
    "id": "e93726273d",
@@ -234,6 +260,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "Ngô Đến, Phường Bắc Nha Trang, Nha Trang",
+   "addrAuto": true,
    "photo": "media/places/e93726273d.jpg?v=7981c798",
    "credit": "Ms Sarah Welch, CC0",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:04052023_Ponagar_Hindu_temples_complex,_Nha_Trang_Vietnam_-_240.jpg"
@@ -252,6 +280,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "Trần Phú, Phước Hòa, Nha Trang",
+   "addrAuto": true,
    "photo": "media/places/6090e0ef1b.jpg?v=f9470e56",
    "credit": "Андрей Бобровский, CC BY 3.0",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:%D0%92%D1%8C%D0%B5%D1%82%D0%BD%D0%B0%D0%BC_-_panoramio_(94).jpg"
@@ -270,6 +300,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "31a Thái Nguyên, Phước Hòa, Nha Trang",
+   "addrAuto": true,
    "photo": "media/places/9a849a9dd2.jpg?v=9106c8cd",
    "credit": "Андрей Бобровский, CC BY 3.0",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:Vietnam_-_panoramio_(42).jpg"
@@ -288,6 +320,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "Trần Phú, Phước Hòa, Nha Trang",
+   "addrAuto": true,
    "photo": "media/places/81c4c5b12c.jpg?v=e34a0ae8",
    "credit": "RG72, CC BY-SA 4.0",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:Enirejo_de_la_muzeo_de_Yersin_(Nha_Trang)_01.jpg"
@@ -306,6 +340,8 @@
    "hours": "",
    "checked": "",
    "source": "open",
+   "addr": "Trần Phú, Phường Nha Trang, Nha Trang",
+   "addrAuto": true,
    "photo": "media/places/0ddeaa60b8.jpg?v=f6deafb4",
    "credit": "Phương Huy (thảo luận), Public domain",
    "creditUrl": "https://commons.wikimedia.org/wiki/File:Vi%E1%BB%87n_H%E1%BA%A3i_D%C6%B0%C6%A1ng_h%E1%BB%8Dc_Nha_Trang_(B%E1%BA%A3o_t%C3%A0ng_H%E1%BA%A3i_d%C6%B0%C6%A1ng_h%E1%BB%8Dc).jpg"
@@ -323,7 +359,9 @@
    "price": "",
    "hours": "",
    "checked": "",
-   "source": "open"
+   "source": "open",
+   "addr": "Thái Nguyên, Phường Nha Trang, Nha Trang",
+   "addrAuto": true
   }
  ]
 }
