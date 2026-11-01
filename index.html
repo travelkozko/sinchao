@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <link rel="preload" as="image" href="media/poster.jpg?b=202611011625">
+<link rel="preload" as="image" href="media/loop-first.jpg?b=202611011650">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{
@@ -35,14 +36,16 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
   width:min(100vw, calc((100vh - 215px) * 9 / 14));aspect-ratio:9/14;
   background:var(--paper) url("media/poster.jpg?b=202611011625") center/cover no-repeat;
 }
-#stage.end{background-image:url("media/end.jpg?b=202611011625")}
+#stage.end{background-image:url("media/loop-first.jpg?b=202611011650")}
 #stage::after{ /* ножки табуретки уходят в бумагу, как в незаконченном наброске */
   content:"";position:absolute;left:0;right:0;bottom:-1px;height:11%;
   background:linear-gradient(to bottom, rgba(250,230,200,0) 0%, rgba(250,230,200,.8) 60%, var(--paper) 100%);
   pointer-events:none;
 }
-#video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.01;pointer-events:none}
-#video.on{opacity:1}
+#stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.01;pointer-events:none}
+#stage video.on{opacity:1}
+#video{z-index:1}
+#stage #video.gone{opacity:0}
 
 /* нижний блок: название и кнопка на бумаге */
 .bottom{
@@ -100,6 +103,7 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
 
 <section id="splash" aria-label="Заставка">
   <div id="stage">
+    <video id="loop" muted playsinline webkit-playsinline loop preload="auto" aria-hidden="true"></video>
     <video id="video" muted playsinline webkit-playsinline preload="auto"
            poster="media/poster.jpg?b=202611011625" aria-hidden="true"></video>
   </div>
@@ -125,7 +129,7 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
 
 <script>
 (function(){
-  var B = '?b=202611011625';
+  var B = '?b=202611011650';
   var KEY = 'sinchao_intro_v2';
   var tg = window.Telegram && window.Telegram.WebApp;
   var inTg = !!(tg && tg.initData);
@@ -145,6 +149,7 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
 
   var stage = document.getElementById('stage');
   var video = document.getElementById('video');
+  var loopV = document.getElementById('loop');
   var logo = document.getElementById('logo');
   var openBtn = document.getElementById('open');
   var skipBtn = document.getElementById('skip');
@@ -153,30 +158,50 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
   var guide = document.getElementById('guide');
   var backBtn = document.getElementById('back');
   var finished = false;
+  var loopOn = false;
 
   function seen(){ try { return localStorage.getItem(KEY) === '1'; } catch(e){ return false; } }
   function markSeen(){ try { localStorage.setItem(KEY, '1'); } catch(e){} }
 
   function showLogo(){ logo.classList.add('show'); }
 
-  // Заставка закончилась: замираем на последнем кадре, показываем кнопку
+  // Петля: начинается ровно с того кадра, на котором кончается вступление
+  loopV.src = 'media/loop.mp4' + B;
+  loopV.muted = true;
+  function startLoop(){
+    loopOn = true;
+    stage.classList.add('end');           // если петля не запустится — останется её первый кадр
+    try { loopV.currentTime = 0; } catch(e){}
+    var p = loopV.play();
+    if (p && p.catch) p.catch(function(){});
+  }
+  // показываем петлю, только когда она реально пошла, и только потом убираем вступление
+  loopV.addEventListener('timeupdate', function(){
+    if (!loopV.classList.contains('on') && loopV.currentTime > 0.04) {
+      loopV.classList.add('on');
+      video.classList.add('gone');
+    }
+  });
+
+  // Вступление закончилось: включаем петлю и показываем кнопку
   function finish(){
     if (finished) return;
     finished = true;
-    stage.classList.add('end');
     skipBtn.hidden = true;
     tapBtn.hidden = true;
+    startLoop();
     showLogo();
     openBtn.classList.add('show');
     markSeen();
   }
 
   if (seen()) {
-    // повторный запуск — без ролика, сразу последний кадр
+    // повторный запуск — без вступления, сразу петля
+    video.classList.add('gone');
     finish();
   } else {
     var started = false;
-    video.src = 'media/splash.mp4' + B;
+    video.src = 'media/intro.mp4' + B;
     video.muted = true;
 
     function start(){
@@ -191,7 +216,7 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
     video.addEventListener('canplaythrough', start, { once: true });
     setTimeout(start, 3500);           // на медленной сети не ждём буфер бесконечно
     video.addEventListener('playing', function(){
-      skipBtn.hidden = false;
+      if (!finished) skipBtn.hidden = false;
       setTimeout(showLogo, 500);
     });
     // показываем видео только когда реально пошли первые кадры — под ним постер = первый кадр
@@ -209,25 +234,29 @@ button{font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
       haptic('light');
       try { video.pause(); } catch(e){}
       finish();
-      video.classList.remove('on'); // остаётся картинка последнего кадра
-    });
-    // Android ставит видео на паузу при сворачивании — продолжаем, если ролик не доиграл
-    document.addEventListener('visibilitychange', function(){
-      if (!document.hidden && started && !finished && video.paused) video.play().catch(function(){});
     });
   }
+
+  // Android ставит видео на паузу при сворачивании — продолжаем
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) return;
+    if (loopOn && !splash.hidden && loopV.paused) loopV.play().catch(function(){});
+    else if (!finished && video.paused && video.currentTime > 0) video.play().catch(function(){});
+  });
 
   // --- Переход в гид и обратно ---
   function openGuide(){
     haptic('medium');
     splash.hidden = true;
     guide.hidden = false;
+    try { loopV.pause(); } catch(e){}
     if (inTg) tg.BackButton.show(); else backBtn.hidden = false;
   }
   function closeGuide(){
     haptic('light');
     guide.hidden = true;
     splash.hidden = false;
+    if (loopOn) loopV.play().catch(function(){});
     if (inTg) tg.BackButton.hide(); else backBtn.hidden = true;
   }
   openBtn.addEventListener('click', openGuide);
