@@ -198,6 +198,19 @@ a{color:var(--ink-soft)}
 .ph .tr{font-family:Caveat,cursive;font-weight:700;font-size:20px;line-height:1.1;color:var(--clay)}
 .ph .ru{font-size:14px;color:var(--ink-soft)}
 .ph .go{flex:none;display:flex;align-items:center;font-family:Caveat,cursive;font-weight:700;font-size:19px}
+.rt-card{width:100%;display:block;margin:12px 0;padding:0;border:2px solid var(--ink);border-radius:14px;background:var(--card);box-shadow:0 4px 0 var(--ink);overflow:hidden;text-align:left;color:var(--ink);transition:transform .07s,box-shadow .07s}
+.rt-card:active{transform:translateY(4px);box-shadow:0 0 0 var(--ink)}
+.rt-pic{height:110px;display:flex;align-items:center;justify-content:center;border-bottom:2px solid var(--ink);background:#CFE3E1}
+.rt-pic img{width:100%;height:100%;object-fit:cover}
+.rt-b{display:block;padding:10px 14px 12px}
+.rt-t{display:block;font-size:18px;font-weight:600;line-height:1.25}
+.rt-m{display:block;margin-top:3px;font-size:14px;color:var(--ink-soft)}
+.rt-ab{display:block;margin-top:6px;font-size:14px;line-height:1.4}
+.rt-usual{display:block;margin-top:8px;padding-top:7px;border-top:1.5px dashed #8C8475;font-size:13px}
+.rt-usual b{font-family:Caveat,cursive;font-weight:700;font-size:20px;color:var(--clay)}
+.rt-go{display:block;margin-top:8px;text-align:right;font-family:Caveat,cursive;font-weight:700;font-size:20px}
+.rt-add{width:100%;margin-top:14px;min-height:48px;border:2px dashed var(--ink);border-radius:12px;background:transparent;font-family:Caveat,cursive;font-weight:700;font-size:22px;color:var(--ink)}
+.rt-empty{margin:14px 0 0;font-style:italic;color:var(--ink-soft);line-height:1.45}
 .pb-tip{margin:6px 2px 4px;padding:10px 12px;background:var(--note);box-shadow:2px 3px 0 rgba(43,42,40,.18);transform:rotate(-.8deg);font-size:13px;line-height:1.45}
 .say-nav{display:flex;gap:8px}
 .say-nav button{flex:1;min-height:46px;padding:0 8px;border:2px solid var(--ink);border-radius:12px;background:var(--card);box-shadow:0 3px 0 var(--ink);font-size:14px;color:var(--ink);transition:transform .07s,box-shadow .07s}
@@ -471,7 +484,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611022026';
+  var BUILD = '202611022140';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -571,6 +584,7 @@ a{color:var(--ink-soft)}
     haptic('light');
     if (stack[stack.length - 1] === 'phrasebook') pbState.scroll = $('page').querySelector('.scroll').scrollTop;
     if (stack[stack.length - 1] === 'food') foodScroll = $('page').querySelector('.scroll').scrollTop;
+    if (stack[stack.length - 1] === 'routes') rtScroll = $('page').querySelector('.scroll').scrollTop;
     stack.push(id); render();
   }
   function back(){ if (stack.length < 2) return; haptic('light'); stack.pop(); render(); }
@@ -597,6 +611,8 @@ a{color:var(--ink-soft)}
     if (a && a.getAttribute('data-act') === 'ph-list') {
       if (stack[stack.length - 2] === 'phrasebook') back(); else { haptic('light'); stack[stack.length - 1] = 'phrasebook'; render(); }
     }
+    var rsb = e.target.closest('[data-rsec]');
+    if (rsb) { haptic('light'); rtSec = rsb.getAttribute('data-rsec'); rtScroll = 0; renderPage('routes'); return; }
     var ch = e.target.closest('[data-cat]');
     if (ch) { haptic('light'); pbState.cat = ch.getAttribute('data-cat'); pbState.scroll = 0;
       Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(x){ x.setAttribute('aria-pressed', String(x === ch)); });
@@ -625,7 +641,7 @@ a{color:var(--ink-soft)}
 
   function renderPage(id){
     var body = $('pageBody'), html = '';
-    if (PAGES[id] && id !== 'phrasebook' && id !== 'practical' && id !== 'map' && id !== 'food' && id !== 'events') {
+    if (PAGES[id] && id !== 'routes' && id !== 'phrasebook' && id !== 'practical' && id !== 'map' && id !== 'food' && id !== 'events') {
       var p = PAGES[id];
       html = '<h2>' + esc(p.title) + '</h2><p>' + esc(p.text) + '</p>' +
              '<div class="soon">Раздел готовим. Загляните чуть позже — новые разделы появятся здесь сами, ничего обновлять не нужно.</div>';
@@ -658,6 +674,24 @@ a{color:var(--ink-soft)}
               '</details>';
           }).join('') +
           '<p class="pb-note">' + esc(PR.disclaimer) + '</p>';
+      }
+    } else if (id === 'routes') {
+      if (!OFFERS) { html = '<h2>Маршруты</h2><p class="empty">Загружаем…</p>'; loadOffers(); }
+      else {
+        var rs = RT_SECTIONS.filter(function(x){ return x.id === rtSec; })[0];
+        var list = rtSec === 'self' ? ROUTES.routes : OFFERS.offers.filter(function(o){ return o.section === rtSec; });
+        html = '<h2>Маршруты</h2><p class="checked">Куда поехать и с кем · ' + esc(CITY.name) + '</p>' +
+          '<div class="chips" role="group" aria-label="Разделы">' + RT_SECTIONS.map(function(x){
+            return '<button class="chip" type="button" data-rsec="' + x.id + '" aria-pressed="' + (x.id === rtSec) + '">' + x.title + '</button>'; }).join('') + '</div>' +
+          '<div class="pb-tip">' + esc(rtSec === 'self' ? (ROUTES.note || rs.note) : rs.note) + '</div>' +
+          (list.length ? list.map(function(o){ return rtSec === 'self' ? routeCard(o) : offerCard(o, rs); }).join('')
+            : '<p class="rt-empty">' + (rtSec === 'self' ? 'Первые маршруты готовим — скоро они появятся здесь.' : 'Здесь скоро появятся предложения. Хотите быть первым?') + '</p>') +
+          (rtSec === 'self' ? '' : '<button class="rt-add" type="button" data-link="' + OFFER_BOT + '">+ Разместить своё предложение</button>');
+        body.innerHTML = html + fallbackBack;
+        body.parentNode.scrollTop = rtScroll || 0;
+        var onChip = body.querySelector('[data-rsec][aria-pressed="true"]');   // выбранный раздел не уезжает за край
+        if (onChip) onChip.parentNode.scrollLeft = Math.max(0, onChip.offsetLeft - 22);
+        return;
       }
     } else if (id === 'driver') {
       var d = driverText || {};
@@ -920,6 +954,52 @@ a{color:var(--ink-soft)}
     var top = stack[stack.length - 1];
     if (top === 'phrasebook' || /^say:/.test(top)) renderPage(top);
   }).catch(function(){});
+
+  // ================= Маршруты =================
+  var OFFER_BOT = 'https://t.me/SinChaoGuideBot?start=offer';   // бот спрашивает по шагам, заявка — в группу модерации
+  var RT_ICON = {
+    self: '<path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>',
+    tours: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>',
+    locals: '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="9" r="2.5"/><path d="M3 20c0-3 2.5-5 5-5s5 2 5 5M13 20c.3-2.5 1.6-4 3-4s3 1.5 3 4"/>',
+    sea: '<path d="M3 15c2 0 2-2 4.5-2s2.5 2 4.5 2 2-2 4.5-2 2.5 2 4.5 2M3 19c2 0 2-2 4.5-2s2.5 2 4.5 2 2-2 4.5-2 2.5 2 4.5 2"/><path d="M8 11l4-7 4 7z"/>',
+    transport: '<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17l4-7h5l3 7M10 10l-1-3H7"/>'
+  };
+  var RT_SECTIONS = [
+    { id:'self', title:'Сам', note:'', bg:'#F3E3C6' },
+    { id:'tours', title:'Экскурсии', note:'Предложения размещают сами авторы. Мы не организуем поездки и не берём комиссию — договаривайтесь напрямую.', bg:'#E1E6CF' },
+    { id:'locals', title:'С местными', note:'Прогулки и встречи с теми, кто живёт в городе. Предложения размещают сами авторы — договаривайтесь напрямую.', bg:'#F9E08A' },
+    { id:'sea', title:'Море', note:'Острова, снорклинг, дайвинг, рыбалка. Предложения размещают сами авторы — договаривайтесь напрямую.', bg:'#CFE3E1' },
+    { id:'transport', title:'Транспорт', note:'Машина с водителем, байк на день, трансфер. Предложения размещают сами авторы — договаривайтесь напрямую.', bg:'#F2D6C4' }
+  ];
+  var OFFERS = null, ROUTES = null, rtSec = 'self', rtScroll = 0;
+  function loadOffers(){
+    var hour = Math.floor(Date.now() / 36e5);                   // предложения обновляются раз в час
+    Promise.all([
+      getJSON('data/offers.json?h=' + hour, 10000).catch(function(){ return { offers: [] }; }),
+      getJSON('data/routes.json' + B, 10000).catch(function(){ return { routes: [] }; })
+    ]).then(function(d){
+      OFFERS = { offers: d[0].offers || [] }; ROUTES = { note: d[1].note || '', routes: d[1].routes || [] };
+      if (stack[stack.length - 1] === 'routes') renderPage('routes');
+    });
+  }
+  function rtPic(sec, photo, alt){
+    var x = RT_SECTIONS.filter(function(y){ return y.id === sec; })[0] || RT_SECTIONS[0];
+    return '<span class="rt-pic" style="background:' + x.bg + '">' + (photo ? '<img src="' + esc(photo) + '" alt="' + esc(alt) + '" loading="lazy" decoding="async">'
+      : '<svg aria-hidden="true" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + RT_ICON[x.id] + '</svg>') + '</span>';
+  }
+  function offerCard(o, rs){
+    return '<button class="rt-card" type="button" data-link="' + esc(o.post) + '">' + rtPic(o.section, o.photo, o.title) +
+      '<span class="rt-b"><span class="rt-t">' + esc(o.title) + '</span>' +
+      (o.terms ? '<span class="rt-m">' + esc(o.terms) + (o.langs ? ' · ' + esc(o.langs) : '') + '</span>' : '') +
+      (o.about ? '<span class="rt-ab">' + esc(o.about.length > 160 ? o.about.slice(0, 159) + '…' : o.about) + '</span>' : '') +
+      (o.usual ? '<span class="rt-usual">обычно в городе: <b>' + esc(o.usual) + '</b></span>' : '') +
+      '<span class="rt-go">написать ›</span></span></button>';
+  }
+  function routeCard(rt){
+    return '<button class="rt-card" type="button"' + (rt.link ? ' data-link="' + esc(rt.link) + '"' : '') + '>' + rtPic('self', rt.photo, rt.title) +
+      '<span class="rt-b"><span class="rt-t">' + esc(rt.title) + '</span>' + (rt.meta ? '<span class="rt-m">' + esc(rt.meta) + '</span>' : '') +
+      (rt.about ? '<span class="rt-ab">' + esc(rt.about) + '</span>' : '') + (rt.link ? '<span class="rt-go">открыть маршрут ›</span>' : '') + '</span></button>';
+  }
 
   function norm(t){ return String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/ё/g, 'е'); }
   function pbListHtml(){
