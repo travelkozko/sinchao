@@ -455,7 +455,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611021037';
+  var BUILD = '202611021218';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -475,7 +475,15 @@ a{color:var(--ink-soft)}
   }
   function $(id){ return document.getElementById(id); }
   function store(k, v){ try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch(e){ return null; } }
-  function openLink(url){ try { if (tg && tg.openLink) { tg.openLink(url); return; } } catch(e){} window.open(url, '_blank', 'noopener'); }
+  function openLink(url){
+    try {
+      if (tg && tg.openTelegramLink && /^https:\/\/t\.me\//.test(url)) { tg.openTelegramLink(url); return; }   // каналы и посты — внутри Telegram
+      if (tg && tg.openLink) { tg.openLink(url); return; }
+    } catch(e){}
+    window.open(url, '_blank', 'noopener');
+  }
+  // События предлагают в комментариях к закреплённому посту канала: там видно автора и можно уточнить детали.
+  var EVENTS_POST = 'https://t.me/sinchaoguide/3';   // закреплённый пост «Знаете событие в Нячанге?»
 
   // ================= Заставка =================
   var loopV = $('loop'), logo = $('logo'), openBtn = $('open'), tapBtn = $('tap'), splash = $('splash');
@@ -686,8 +694,8 @@ a{color:var(--ink-soft)}
           months.map(function(m){ return '<div class="fd-h">' + esc(monthName(m)) + '</div>' + byMonth[m].map(evCard).join(''); }).join('') +
           (list.length ? '' : !all.length ? '<p class="empty">Ближайших событий пока нет — загляните позже.</p>' :
             '<p class="ev-empty">На эти дни событий нет.' + (nearest ? ' Ближайшее:' : '') + '</p>' + (nearest ? evCard(nearest) : '')) +
-          '<div class="fd-acts"><button type="button" data-go="suggest-event">Предложить событие</button></div>' +
-          '<p class="pb-note">' + esc(EV.note) + ' События с пометкой «от сообщества» прислали читатели, мы их проверили перед публикацией.</p>';
+          '<div class="fd-acts"><button type="button" data-link="' + EVENTS_POST + '">Предложить событие</button></div>' +
+          '<p class="pb-note">' + esc(EV.note) + ' События с пометкой «от сообщества» прислали читатели, мы их проверили и опубликовали в канале.</p>';
       }
     } else if (/^allergy:/.test(id)) {
       var ad = FOOD && FOOD.dishes.filter(function(x){ return x.id === id.slice(8); })[0];
@@ -721,17 +729,15 @@ a{color:var(--ink-soft)}
                  '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>';
         }).join('') +
         '<button class="row" type="button" data-go="suggest-place"><span class="t"><b>Предложить место</b><small>кафе, пляж или вид, который стоит показать</small></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>' +
-        '<button class="row" type="button" data-go="suggest-event"><span class="t"><b>Предложить событие</b><small>концерт, ярмарка или праздник для афиши</small></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>' +
+        '<button class="row" type="button" data-link="' + EVENTS_POST + '"><span class="t"><b>Предложить событие</b><small>в комментариях канала — концерт, ярмарка, праздник</small></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>' +
         (homeScreenOk ? '<button class="row" type="button" data-act="home-screen"><span class="t"><b>На главный экран</b><small>значок гида рядом с другими приложениями</small></span></button>' : '') +
         '<button class="row" type="button" data-link="https://t.me/sinchaoguide"><span class="t"><b>Канал «Синь Чао»</b><small>новые места и обновления гида</small></span></button>' +
         '</div>';
-    } else if (id === 'suggest-place' || id === 'suggest-event') {
+    } else if (id === 'suggest-place') {
       if (!sending) fmError = '';
-      html = formHtml(id === 'suggest-place' ? 'place' : 'event');
-    } else if (/^sent:/.test(id)) {
-      html = id === 'sent:place'
-        ? '<h2>Спасибо!</h2><p>Заявка ушла на проверку. Мы сходим, посмотрим и, если место хорошее, добавим его на карту.</p>'
-        : '<h2>Спасибо!</h2><p>Заявка ушла на проверку. Если всё подтвердится, событие появится в афише с пометкой «от сообщества».</p>';
+      html = formHtml('place');
+    } else if (id === 'sent:place') {
+      html = '<h2>Спасибо!</h2><p>Заявка ушла на проверку. Мы сходим, посмотрим и, если место хорошее, добавим его на карту.</p>';
       html += '<div class="fd-acts"><button type="button" data-act="back">Готово</button></div>';
     }
     body.innerHTML = html + fallbackBack;
@@ -1166,8 +1172,8 @@ a{color:var(--ink-soft)}
   // Про автора не отправляем ничего: ни данных Telegram, ни имени, ни контакта.
   var SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbzZsY39ZUP8MGJWScCSx_XszE65rs5_olDZRKcz4IpBbpicLli_vJWo8H6fZzterkB1/exec';
   var PLACE_CATS = ['еда','кофе','бар','рынок','смотреть','вид','пляж','развлечения','услуги'];
-  var MAX_PHOTOS = { place:3, event:1 };
-  var draft = { place:{ photos:[] }, event:{ photos:[] } }, sending = false, fmError = '', fmKind = 'place';
+  var MAX_PHOTOS = { place:3 };
+  var draft = { place:{ photos:[] } }, sending = false, fmError = '', fmKind = 'place';
 
   function fIn(kind, key, label, opt, attrs){
     var v = draft[kind][key] || '';
@@ -1200,16 +1206,6 @@ a{color:var(--ink-soft)}
           (parseLL(d.where) ? 'Поправить точку на карте' : 'Отметить на карте') + '</button>' +
         fIn('place', 'about', 'Чем хорошо', false, { area:true, max:1000, ph:'что заказать, когда лучше прийти, сколько стоит' }) +
         '<div class="fl">Фото <small>необязательно, до ' + MAX_PHOTOS.place + '</small></div><div class="fm-ph" id="fmPhotos">' + photosHtml() + '</div>';
-    } else {
-      h = '<h2>Предложить событие</h2><p>Концерт, ярмарка, праздник или турнир в Нячанге — расскажите, и после проверки событие появится в афише.</p>' +
-        fIn('event', 'title', 'Что за событие', false, { max:150, ph:'например, Ярмарка у собора' }) +
-        '<div class="two"><div>' + fIn('event', 'start', 'Когда', false, { type:'date', min:today }) + '</div>' +
-          '<div>' + fIn('event', 'end', 'До', true, { type:'date', min:today }) + '</div></div>' +
-        fIn('event', 'time', 'Во сколько', true, { max:60, ph:'например, с 19:00' }) +
-        fIn('event', 'where', 'Где', false, { max:300, ph:'место, адрес или ссылка на Google Карты' }) +
-        fIn('event', 'about', 'Коротко о событии', false, { area:true, max:1000, ph:'что будет, вход платный или свободный' }) +
-        fIn('event', 'link', 'Где об этом написано', true, { type:'url', max:500, ph:'ссылка на афишу или страницу организатора' }) +
-        '<div class="fl">Фото или афиша <small>необязательно, одно</small></div><div class="fm-ph" id="fmPhotos">' + photosHtml() + '</div>';
     }
     return '<div class="fm">' + h +
       '<input class="fm-hp" id="fmHp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">' +
@@ -1221,20 +1217,10 @@ a{color:var(--ink-soft)}
   function fmShowError(t){ fmError = t; var e = $('fmErr'); if (e) { e.textContent = t; e.hidden = !t; if (t) e.scrollIntoView({ block:'center', behavior:'smooth' }); } }
   function checkForm(kind, d){
     function f(k){ return String(d[k] || '').trim(); }
-    if (kind === 'place') {
-      if (!f('name')) return 'Напишите название места.';
-      if (!d.cat) return 'Выберите, что это: еда, кофе, пляж…';
-      if (!f('where')) return 'Напишите, где это: адрес или ссылку на карту.';
-      if (f('about').length < 10) return 'Расскажите хотя бы в паре слов, чем место хорошо.';
-    } else {
-      if (!f('title')) return 'Напишите, что за событие.';
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(f('start'))) return 'Укажите дату события.';
-      if (f('start') < localDay()) return 'Дата уже прошла — в афишу попадают только будущие события.';
-      if (f('end') && f('end') < f('start')) return 'Дата окончания раньше начала.';
-      if (!f('where')) return 'Напишите, где пройдёт событие.';
-      if (f('about').length < 10) return 'Расскажите хотя бы в паре слов, что будет.';
-      if (f('link') && !/^https?:\/\/\S+\.\S+/.test(f('link'))) return 'Ссылка должна начинаться с http:// или https://';
-    }
+    if (!f('name')) return 'Напишите название места.';
+    if (!d.cat) return 'Выберите, что это: еда, кофе, пляж…';
+    if (!f('where')) return 'Напишите, где это: адрес или ссылку на карту.';
+    if (f('about').length < 10) return 'Расскажите хотя бы в паре слов, чем место хорошо.';
     return '';
   }
   function shrinkPhoto(file){
@@ -1261,7 +1247,7 @@ a{color:var(--ink-soft)}
     var last = store('sc_sent_at');
     if (last && Date.now() - last < 30000) { fmShowError('Подождите полминуты перед следующей заявкой.'); return; }
     if (!SUBMIT_URL) { fmShowError('Приём заявок ещё настраивается — попробуйте чуть позже.'); return; }
-    var fields = kind === 'place' ? ['name','cat','where','about'] : ['title','start','end','time','where','about','link'], data = {};
+    var fields = ['name','cat','where','about'], data = {};
     fields.forEach(function(k){ data[k] = String(d[k] || '').trim(); });
     var payload = { kind:kind, hp:($('fmHp') || {}).value || '', build:BUILD, city:CITY.id, data:data, photos:d.photos || [] };
     sending = true; fmShowError(''); haptic('medium');
@@ -1455,13 +1441,15 @@ a{color:var(--ink-soft)}
                   community:'<span class="badge comm">от сообщества</span>' }[x.status] || '';
     var now = x.start <= today && x.end >= today ? '<span class="badge trav">идёт сейчас</span>' : '';
     var mapUrl = x.mapLink ? x.mapLink : x.lat ? 'https://www.google.com/maps/search/?api=1&query=' + x.lat + ',' + x.lon : (x.mapQuery ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(x.mapQuery) : '');
+    var post = /^https:\/\/t\.me\//.test(x.post || '') ? x.post : '';
     return '<div class="ev"><div class="ev-date">' + esc(dateRange(x.start, x.end)) + '</div>' +
       '<div class="ev-t">' + esc(x.title) + '</div>' + (x.titleVi ? '<div class="ev-vi" lang="vi">' + esc(x.titleVi) + '</div>' : '') +
       (x.time ? '<div class="ev-vi">' + esc(x.time) + '</div>' : '') +
       '<div class="ev-meta">' + now + badge + '<span>' + esc(x.place) + '</span></div>' +
       (x.photo ? '<img class="ev-ph" src="' + esc(x.photo) + '" alt="' + esc(x.title) + ' — фото" loading="lazy" decoding="async" onerror="this.remove()">' : '') +
       '<p class="ev-s">' + esc(x.short) + '</p>' +
-      ((mapUrl || x.source) ? '<div class="ev-acts">' + (mapUrl ? '<button type="button" data-link="' + esc(mapUrl) + '">На карте</button>' : '') +
+      ((mapUrl || x.source || post) ? '<div class="ev-acts">' + (mapUrl ? '<button type="button" data-link="' + esc(mapUrl) + '">На карте</button>' : '') +
+        (post ? '<button type="button" data-link="' + esc(post) + '">Обсудить в канале</button>' : '') +
         (x.source ? '<button type="button" data-link="' + esc(x.source) + '">Источник: ' + esc(x.sourceName || 'ссылка') + ' ↗</button>' : '') + '</div>' : '') + '</div>';
   }
   function dateRange(a, b){
