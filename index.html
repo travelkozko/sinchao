@@ -464,7 +464,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611021324';
+  var BUILD = '202611021333';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -1500,9 +1500,12 @@ a{color:var(--ink-soft)}
     var top = stack[stack.length - 1];
     if (top !== 'splash' && top !== 'home') return;
     var u = new URL(location.href);
+    if (u.searchParams.get('v') === newBuild) return;   // уже перезагружались на эту сборку, а пришла старая копия — не крутимся по кругу
     u.searchParams.set('v', newBuild);
+    try { if (top === 'home') sessionStorage.setItem('sc_after_reload', 'home'); } catch(e){}   // человек уже нажал «Открыть гид» — не возвращаем его на заставку
     location.replace(u.toString());
   }
+  checkVersion();                       // сразу при запуске: если вышла новая версия, обновимся ещё на заставке
   setTimeout(checkVersion, 4000);
   setInterval(checkVersion, 5 * 60e3);
   document.addEventListener('visibilitychange', function(){
@@ -1513,6 +1516,7 @@ a{color:var(--ink-soft)}
     if (!screens.home.hidden) loadToday();
   });
 
+  try { if (sessionStorage.getItem('sc_after_reload') === 'home') { sessionStorage.removeItem('sc_after_reload'); stack = ['splash', 'home']; } } catch(e){}
   render();
 })();
 </script>
