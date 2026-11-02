@@ -219,6 +219,13 @@ a{color:var(--ink-soft)}
 .locate{position:absolute;right:14px;z-index:3;bottom:calc(var(--sb) + 22px);height:48px;padding:0 16px 0 12px;gap:6px;border-radius:24px;border:1.5px solid var(--ink);background:var(--card);display:flex;align-items:center;justify-content:center;box-shadow:2px 3px 0 rgba(43,42,40,.18);font-family:Caveat,cursive;font-weight:700;font-size:22px}
 .locate.busy svg{animation:spin 1.2s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.pick-aim{position:absolute;left:50%;top:50%;z-index:3;width:44px;height:56px;margin:-56px 0 0 -22px;pointer-events:none}
+.pick-aim svg{display:block;filter:drop-shadow(1px 2px 0 rgba(43,42,40,.25))}
+.pick-bar{position:absolute;left:10px;right:10px;z-index:4;bottom:calc(var(--sb) + 10px);max-width:480px;margin:0 auto;padding:12px 14px;background:var(--card);border:1.5px solid var(--ink);box-shadow:3px 4px 0 rgba(43,42,40,.2);display:flex;align-items:center;gap:12px}
+.pick-bar p{flex:1;margin:0;font-size:14px;line-height:1.35}
+.pick-bar button{flex:none;min-height:48px;padding:0 20px;border:1.5px solid var(--ink);border-radius:8px;background:var(--ink);color:var(--paper);font-family:Caveat,cursive;font-weight:700;font-size:24px}
+#mapScr.picking .locate{bottom:calc(var(--sb) + 110px)}
+.fm-pick{display:inline-flex;align-items:center;gap:6px;margin-top:8px;min-height:40px;padding:6px 12px;border:1.5px dashed var(--ink);border-radius:8px;background:transparent;font-size:14px}
 .map-note{position:absolute;left:16px;right:16px;z-index:3;bottom:calc(var(--sb) + 84px);max-width:420px;margin:0 auto;padding:12px 14px;background:var(--note);box-shadow:2px 3px 0 rgba(43,42,40,.18);transform:rotate(-.8deg);font-size:14px;line-height:1.45}
 .pin{width:30px;height:38px;cursor:pointer}
 .pin svg{display:block;filter:drop-shadow(1px 2px 0 rgba(43,42,40,.25))}
@@ -315,6 +322,9 @@ a{color:var(--ink-soft)}
 .fm-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 .badge.comm{border-color:#5E7F3E;color:#4E6B32}
 .ev-ph{display:block;width:calc(100% + 28px);margin:10px -14px 0;height:auto;max-height:460px;object-fit:contain;background:#E8DFCC;border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+.chip.ev-date-pick{position:relative}
+.chip.ev-date-pick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;-webkit-appearance:none;appearance:none}
+.ev-empty{margin-top:14px;font-style:italic;color:var(--ink-soft)}
 .ev-acts button{min-height:40px;padding:6px 12px;border:1.5px dashed var(--ink);border-radius:8px;background:transparent;font-size:14px}
 </style>
 </head>
@@ -429,6 +439,8 @@ a{color:var(--ink-soft)}
     <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Где я
   </button>
   <div class="map-note" id="mapNote" hidden role="status"></div>
+  <div class="pick-aim" id="pickAim" hidden aria-hidden="true"><svg width="44" height="56" viewBox="0 0 30 38"><path d="M15 37C15 37 3 23.5 3 14.5a12 12 0 0 1 24 0C27 23.5 15 37 15 37z" fill="#C0533A" stroke="#2B2A28" stroke-width="1.5"/><circle cx="15" cy="14.5" r="4.5" fill="#FFFCF4"/></svg></div>
+  <div class="pick-bar" id="pickBar" hidden><p>Двигайте карту — наведите булавку на место</p><button type="button" data-act="pick-here">Здесь</button></div>
   <div class="map-empty" id="mapEmpty" hidden>Проверенные места появятся здесь совсем скоро — мы как раз обходим Нячанг. А пока на карте видно пляжи, кафе и улицы.</div>
   <div class="sheet" id="placeSheet" hidden role="dialog" aria-label="Место"></div>
 </section>
@@ -443,7 +455,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611021015';
+  var BUILD = '202611021036';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -499,7 +511,7 @@ a{color:var(--ink-soft)}
 
   function render(){
     var top = stack[stack.length - 1];
-    var screenId = top === 'splash' || top === 'home' || top === 'map' ? top : 'page';
+    var screenId = top === 'splash' || top === 'home' || top === 'map' ? top : top === 'pick' ? 'map' : 'page';
     Object.keys(screens).forEach(function(k){ screens[k].hidden = (k !== screenId); });
     if (screenId === 'page') renderPage(top);
     if (top === 'splash') { if (started) loopV.play().catch(function(){}); }
@@ -507,7 +519,8 @@ a{color:var(--ink-soft)}
     var canBack = stack.length > 1;
     if (inTg) { try { canBack ? tg.BackButton.show() : tg.BackButton.hide(); } catch(e){} }
     if (top === 'home') loadToday();
-    if (top === 'map') openMap();
+    setPick(top === 'pick');
+    if (top === 'map' || top === 'pick') openMap();
     maybeReload();
   }
   function go(id){
@@ -637,7 +650,8 @@ a{color:var(--ink-soft)}
             '<small>Фото: ' + (d.creditUrl ? '<a href="#" data-link="' + esc(d.creditUrl) + '">' + esc(d.credit) + '</a>' : esc(d.credit)) + '</small></figure>' : '') +
           '<div class="fd-acts"><button type="button" data-go="order:' + d.id + '">Показать официанту</button>' +
             '<button type="button" data-go="allergy:' + d.id + '">Спросить про аллергию</button>' +
-            '<button type="button" data-act="food-near">Где поесть рядом</button></div>';
+            '<button type="button" data-act="food-near">Где поесть рядом</button>' +
+            '<button type="button" data-act="fm-dish" data-d="' + d.id + '">Знаете, где вкусно готовят?</button></div>';
       }
     } else if (/^order:/.test(id)) {
       var o = FOOD && FOOD.dishes.filter(function(x){ return x.id === id.slice(6); })[0];
@@ -656,30 +670,22 @@ a{color:var(--ink-soft)}
         getJSON('data/events.json?v=' + BUILD + '&d=' + Math.floor(Date.now() / 6e5), 10000).then(function(d){ EV = d; if (stack[stack.length - 1] === 'events') renderPage('events'); })
           .catch(function(){ if (stack[stack.length - 1] === 'events') $('pageBody').innerHTML = '<h2>Афиша</h2><p class="empty">Нет связи. Откройте раздел, когда появится интернет.</p>' + fallbackBack; });
       } else {
-        var today = localDay();
-        var list = EV.events.filter(function(x){ return x.end >= today; }).sort(function(a, b){ return a.start < b.start ? -1 : 1; });
+        var today = localDay(), rng = evRange(evFilter, today);
+        var all = EV.events.filter(function(x){ return x.end >= today; }).sort(function(a, b){ return a.start < b.start ? -1 : a.start > b.start ? 1 : 0; });
+        var list = all.filter(function(x){ return x.start <= rng[1] && x.end >= rng[0]; });   // событие идёт хотя бы в один из выбранных дней
+        var ongoing = list.filter(function(x){ return x.start <= today; }), upcoming = list.filter(function(x){ return x.start > today; });
         var byMonth = {}, months = [];
-        list.forEach(function(x){ var m = (x.start < today ? today : x.start).slice(0, 7); if (!byMonth[m]) { byMonth[m] = []; months.push(m); } byMonth[m].push(x); });
+        upcoming.forEach(function(x){ var m = x.start.slice(0, 7); if (!byMonth[m]) { byMonth[m] = []; months.push(m); } byMonth[m].push(x); });
+        var nearest = list.length ? null : all.filter(function(x){ return x.start > rng[1]; })[0];
         var chev = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
         html = '<h2>Афиша</h2><p class="checked">Нячанг · проверено: ' + esc(EV.checked) + '</p>' +
           (EV.tet && today <= '2027-02-20' ? '<details class="pr" style="margin-top:12px"><summary>' + esc(EV.tet.title) + chev + '</summary><ul>' +
             EV.tet.items.map(function(t){ return '<li>' + rich(t) + '</li>'; }).join('') + '</ul></details>' : '') +
-          (months.length ? months.map(function(m){
-            return '<div class="fd-h">' + esc(monthName(m)) + '</div>' + byMonth[m].map(function(x){
-              var badge = { confirmed:'<span class="badge">подтверждено</span>', expected:'<span class="badge stale">ожидается</span>', tradition:'<span class="badge open">каждый год</span>',
-                            community:'<span class="badge comm">от сообщества</span>' }[x.status] || '';
-              var now = x.start <= today && x.end >= today ? '<span class="badge trav">идёт сейчас</span>' : '';
-              var mapUrl = x.mapLink ? x.mapLink : x.lat ? 'https://www.google.com/maps/search/?api=1&query=' + x.lat + ',' + x.lon : (x.mapQuery ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(x.mapQuery) : '');
-              return '<div class="ev"><div class="ev-date">' + esc(dateRange(x.start, x.end)) + '</div>' +
-                '<div class="ev-t">' + esc(x.title) + '</div>' + (x.titleVi ? '<div class="ev-vi" lang="vi">' + esc(x.titleVi) + '</div>' : '') +
-                (x.time ? '<div class="ev-vi">' + esc(x.time) + '</div>' : '') +
-                '<div class="ev-meta">' + now + badge + '<span>' + esc(x.place) + '</span></div>' +
-                (x.photo ? '<img class="ev-ph" src="' + esc(x.photo) + '" alt="' + esc(x.title) + ' — фото" loading="lazy" decoding="async" onerror="this.remove()">' : '') +
-                '<p class="ev-s">' + esc(x.short) + '</p>' +
-                ((mapUrl || x.source) ? '<div class="ev-acts">' + (mapUrl ? '<button type="button" data-link="' + esc(mapUrl) + '">На карте</button>' : '') +
-                  (x.source ? '<button type="button" data-link="' + esc(x.source) + '">Источник: ' + esc(x.sourceName || 'ссылка') + ' ↗</button>' : '') + '</div>' : '') + '</div>';
-            }).join('');
-          }).join('') : '<p class="empty">Ближайших событий пока нет — загляните позже.</p>') +
+          evChipsHtml(today) +
+          (ongoing.length ? '<div class="fd-h">Идёт сейчас</div>' + ongoing.map(evCard).join('') : '') +
+          months.map(function(m){ return '<div class="fd-h">' + esc(monthName(m)) + '</div>' + byMonth[m].map(evCard).join(''); }).join('') +
+          (list.length ? '' : !all.length ? '<p class="empty">Ближайших событий пока нет — загляните позже.</p>' :
+            '<p class="ev-empty">На эти дни событий нет.' + (nearest ? ' Ближайшее:' : '') + '</p>' + (nearest ? evCard(nearest) : '')) +
           '<div class="fd-acts"><button type="button" data-go="suggest-event">Предложить событие</button></div>' +
           '<p class="pb-note">' + esc(EV.note) + ' События с пометкой «от сообщества» прислали читатели, мы их проверили перед публикацией.</p>';
       }
@@ -933,6 +939,7 @@ a{color:var(--ink-soft)}
       map.touchZoomRotate.disableRotation();
       map.on('click', function(e){
         if (e.originalEvent && e.originalEvent.target.closest && e.originalEvent.target.closest('.pin')) return;
+        if (picking) { map.easeTo({ center: e.lngLat, duration: 300 }); return; }
         var f = map.getLayer('osm-pts') ? map.queryRenderedFeatures([[e.point.x - 12, e.point.y - 12], [e.point.x + 12, e.point.y + 12]], { layers:['osm-pts'] }) : [];
         if (f.length) openOsm(f[0].properties, f[0].geometry.coordinates); else closeSheet();
       });
@@ -969,7 +976,7 @@ a{color:var(--ink-soft)}
       el.type = 'button'; el.className = 'pin' + (p.id === selId ? ' sel' : '');
       el.setAttribute('aria-label', p.name); el.style.border = '0'; el.style.background = 'transparent'; el.style.padding = '0';
       el.innerHTML = pinSvg(p);
-      el.addEventListener('click', function(ev){ ev.stopPropagation(); openPlace(p.id); });
+      el.addEventListener('click', function(ev){ ev.stopPropagation(); if (picking) { map.easeTo({ center: [p.lon, p.lat], duration: 300 }); return; } openPlace(p.id); });
       markers.push(new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat([p.lon, p.lat]).addTo(map));
     });
   }
@@ -1040,7 +1047,7 @@ a{color:var(--ink-soft)}
   function openOsm(pr, ll){
     haptic('light'); selId = null; drawMarkers();
     driverText = { name: pr.name, nameVi: pr.vi && pr.vi !== pr.name ? pr.vi : '', addr: pr.a || '', lat: ll[1], lon: ll[0] };
-    osmSel = { lat: ll[1], lon: ll[0] };
+    osmSel = { lat: ll[1], lon: ll[0], name: pr.name, cat: pr.cat };
     $('placeSheet').innerHTML =
       '<button class="x" type="button" data-act="close-place" aria-label="Закрыть"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       '<h3>' + esc(pr.name) + '</h3>' + (pr.vi && pr.vi !== pr.name ? '<div class="vi" lang="vi">' + esc(pr.vi) + '</div>' : '') +
@@ -1049,10 +1056,37 @@ a{color:var(--ink-soft)}
       (pr.a ? '<p class="addr" lang="vi">' + esc(pr.a) + '</p>' : '') +
       '<p class="short" style="color:var(--ink-soft);font-size:13px;font-style:italic">Мы здесь ещё не были. Если заглянете — расскажите, как там.</p>' +
       '<div class="acts"><button type="button" data-act="route-osm">Маршрут</button>' +
-        '<button type="button" data-act="show-driver-osm">Показать таксисту</button></div>';
+        '<button type="button" data-act="show-driver-osm">Показать таксисту</button>' +
+        (PLACE_CATS.indexOf(pr.cat) >= 0 ? '<button type="button" data-act="tell-osm">Рассказать о месте</button>' : '') + '</div>';
     $('placeSheet').hidden = false; $('placeSheet').scrollTop = 0;
   }
   var osmSel = null;
+
+  // ----- выбор точки на карте для формы «Предложить место»: булавка в центре, двигается карта
+  var picking = false;
+  function fmtLL(lat, lon){ return (+lat).toFixed(5) + ', ' + (+lon).toFixed(5); }
+  function parseLL(t){ var m = /^\s*(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)\s*$/.exec(t || ''); return m ? [+m[2], +m[1]] : null; }
+  function setPick(on){
+    if (on === picking) return;
+    picking = on;
+    $('mapScr').classList.toggle('picking', on);
+    $('pickAim').hidden = $('pickBar').hidden = !on;
+    if (on) {
+      $('placeSheet').hidden = true; $('mapNote').hidden = true; $('mapEmpty').hidden = true; selId = null;
+      var ll = parseLL(draft.place.where);
+      withMap(function(){ if (!picking) return; $('mapEmpty').hidden = true; drawMarkers(); map.jumpTo({ center: ll || map.getCenter(), zoom: Math.max(map.getZoom(), 16) }); });
+    } else if (map) {
+      $('mapEmpty').hidden = !places || places.length > 0;
+    }
+  }
+  function pickHere(){
+    if (!map) return;
+    var c = map.getCenter();
+    haptic('medium');
+    draft.place.where = fmtLL(c.lat, c.lng);
+    back();
+    setTimeout(function(){ var f = $('f-where'); if (f) f.scrollIntoView({ block:'center' }); }, 60);
+  }
 
   // Геопозицию спрашиваем ТОЛЬКО по нажатию «Где я» или «Где поесть рядом» — не при открытии карты.
   var locating = false, noteTimer = null;
@@ -1101,6 +1135,13 @@ a{color:var(--ink-soft)}
     if (act === 'show-driver' && p) { driverText = p; go('driver'); }
     if (act === 'route-osm' && osmSel) openLink('https://www.google.com/maps/dir/?api=1&destination=' + osmSel.lat + ',' + osmSel.lon);
     if (act === 'show-driver-osm' && driverText) go('driver');
+    if (act === 'tell-osm' && osmSel) {
+      var dp = draft.place;
+      if (dp.name !== osmSel.name) draft.place = dp = { photos:[] };          // черновик о другом месте не смешиваем
+      dp.name = osmSel.name; dp.cat = osmSel.cat; dp.where = fmtLL(osmSel.lat, osmSel.lon);
+      closeSheet(); go('suggest-place');
+    }
+    if (act === 'pick-here') pickHere();
     if (act === 'drv-maps' && driverText) openLink('https://www.google.com/maps/search/?api=1&query=' + driverText.lat + ',' + driverText.lon);
     if (act === 'drv-copy' && driverText) {
       var t = [driverText.nameVi || driverText.name, driverText.addr, driverText.lat ? driverText.lat.toFixed(5) + ', ' + driverText.lon.toFixed(5) : ''].filter(Boolean).join('\n');
@@ -1109,6 +1150,16 @@ a{color:var(--ink-soft)}
     }
   });
   var driverText = null;
+
+  // ----- афиша: переключение дат
+  document.addEventListener('click', function(e){
+    var c = e.target.closest('[data-evf]'); if (!c) return;
+    haptic('light'); evFilter = c.getAttribute('data-evf'); renderPage('events');
+  });
+  document.addEventListener('change', function(e){
+    if (e.target.id !== 'evDate') return;
+    haptic('light'); evFilter = e.target.value ? 'date:' + e.target.value : 'all'; renderPage('events');
+  });
 
   // ================= Заявки от читателей =================
   // Заявка уходит в Google Apps Script (source/moderation/), он дописывает строку в лист «Модерация».
@@ -1144,7 +1195,9 @@ a{color:var(--ink-soft)}
         '<div class="fl">Что это</div><div class="chips" role="group" aria-label="Что это">' + PLACE_CATS.map(function(c){
           return '<button class="chip" type="button" data-act="fm-cat" data-c="' + esc(c) + '" aria-pressed="' + (d.cat === c) + '">' + esc(CAT_LABEL[c] || c) + '</button>';
         }).join('') + '</div>' +
-        fIn('place', 'where', 'Где это', false, { max:300, ph:'адрес или ссылка на Google Карты' }) +
+        fIn('place', 'where', 'Где это', false, { max:300, ph:'адрес, ссылка на Google Карты или точка на карте' }) +
+        '<button class="fm-pick" type="button" data-act="fm-pick"><svg aria-hidden="true" width="16" height="20" viewBox="0 0 30 38"><path d="M15 37C15 37 3 23.5 3 14.5a12 12 0 0 1 24 0C27 23.5 15 37 15 37z" fill="none" stroke="#2B2A28" stroke-width="2.4"/><circle cx="15" cy="14.5" r="4.5" fill="none" stroke="#2B2A28" stroke-width="2.4"/></svg>' +
+          (parseLL(d.where) ? 'Поправить точку на карте' : 'Отметить на карте') + '</button>' +
         fIn('place', 'about', 'Чем хорошо', false, { area:true, max:1000, ph:'что заказать, когда лучше прийти, сколько стоит' }) +
         '<div class="fl">Фото <small>необязательно, до ' + MAX_PHOTOS.place + '</small></div><div class="fm-ph" id="fmPhotos">' + photosHtml() + '</div>';
     } else {
@@ -1257,6 +1310,13 @@ a{color:var(--ink-soft)}
     }
     if (act === 'fm-del-photo') { haptic('light'); draft[fmKind].photos.splice(+a.getAttribute('data-i'), 1); $('fmPhotos').innerHTML = photosHtml(); }
     if (act === 'fm-send') sendForm(a.getAttribute('data-k'));
+    if (act === 'fm-pick') go('pick');
+    if (act === 'fm-dish') {
+      var dd = FOOD && FOOD.dishes.filter(function(x){ return x.id === a.getAttribute('data-d'); })[0];
+      draft.place.cat = 'еда';
+      if (dd && !String(draft.place.about || '').trim()) draft.place.about = 'Вкусно готовят ' + dd.ru.charAt(0).toLowerCase() + dd.ru.slice(1) + '. ';
+      go('suggest-place');
+    }
   });
 
   // ================= Еда =================
@@ -1366,6 +1426,44 @@ a{color:var(--ink-soft)}
   var MONTHS_N = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   function localDay(){ try { return new Intl.DateTimeFormat('en-CA', { timeZone:CITY.tz }).format(new Date()); } catch(e){ return new Date().toISOString().slice(0, 10); } }
   function monthName(m){ return MONTHS_N[+m.slice(5, 7) - 1] + ' ' + m.slice(0, 4); }
+  // ----- афиша: быстрый выбор дат (помним только до закрытия приложения)
+  var evFilter = 'all';
+  var EV_CHIPS = [['all','Все'], ['today','Сегодня'], ['tomorrow','Завтра'], ['weekend','Выходные'], ['week','7 дней']];
+  function addDays(day, n){ var d = new Date(Date.UTC(+day.slice(0, 4), +day.slice(5, 7) - 1, +day.slice(8, 10) + n)); return d.toISOString().slice(0, 10); }
+  function evRange(f, today){
+    if (f === 'today') return [today, today];
+    if (f === 'tomorrow') { var t = addDays(today, 1); return [t, t]; }
+    if (f === 'week') return [today, addDays(today, 6)];
+    if (f === 'weekend') {
+      var wd = new Date(today + 'T00:00:00Z').getUTCDay();          // 0 — воскресенье, 6 — суббота
+      if (wd === 0) return [today, today];
+      var sat = addDays(today, 6 - wd); return [sat < today ? today : sat, addDays(sat, 1)];
+    }
+    if (/^date:\d{4}-\d{2}-\d{2}$/.test(f)) { var d = f.slice(5); return [d, d]; }
+    return ['0000-00-00', '9999-12-31'];
+  }
+  function evChipsHtml(today){
+    var picked = /^date:/.test(evFilter) ? evFilter.slice(5) : '';
+    return '<div class="chips" role="group" aria-label="Когда" style="margin-top:12px">' +
+      EV_CHIPS.map(function(c){ return '<button class="chip" type="button" data-evf="' + c[0] + '" aria-pressed="' + (evFilter === c[0]) + '">' + c[1] + '</button>'; }).join('') +
+      '<label class="chip ev-date-pick" aria-pressed="' + !!picked + '">' + (picked ? esc(dateRange(picked, picked)) : 'Выбрать дату') +
+        '<input type="date" id="evDate" min="' + today + '" value="' + picked + '" aria-label="Выбрать дату"></label></div>';
+  }
+  function evCard(x){
+    var today = localDay();
+    var badge = { confirmed:'<span class="badge">подтверждено</span>', expected:'<span class="badge stale">ожидается</span>', tradition:'<span class="badge open">каждый год</span>',
+                  community:'<span class="badge comm">от сообщества</span>' }[x.status] || '';
+    var now = x.start <= today && x.end >= today ? '<span class="badge trav">идёт сейчас</span>' : '';
+    var mapUrl = x.mapLink ? x.mapLink : x.lat ? 'https://www.google.com/maps/search/?api=1&query=' + x.lat + ',' + x.lon : (x.mapQuery ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(x.mapQuery) : '');
+    return '<div class="ev"><div class="ev-date">' + esc(dateRange(x.start, x.end)) + '</div>' +
+      '<div class="ev-t">' + esc(x.title) + '</div>' + (x.titleVi ? '<div class="ev-vi" lang="vi">' + esc(x.titleVi) + '</div>' : '') +
+      (x.time ? '<div class="ev-vi">' + esc(x.time) + '</div>' : '') +
+      '<div class="ev-meta">' + now + badge + '<span>' + esc(x.place) + '</span></div>' +
+      (x.photo ? '<img class="ev-ph" src="' + esc(x.photo) + '" alt="' + esc(x.title) + ' — фото" loading="lazy" decoding="async" onerror="this.remove()">' : '') +
+      '<p class="ev-s">' + esc(x.short) + '</p>' +
+      ((mapUrl || x.source) ? '<div class="ev-acts">' + (mapUrl ? '<button type="button" data-link="' + esc(mapUrl) + '">На карте</button>' : '') +
+        (x.source ? '<button type="button" data-link="' + esc(x.source) + '">Источник: ' + esc(x.sourceName || 'ссылка') + ' ↗</button>' : '') + '</div>' : '') + '</div>';
+  }
   function dateRange(a, b){
     var d1 = +a.slice(8, 10), m1 = +a.slice(5, 7) - 1, d2 = +b.slice(8, 10), m2 = +b.slice(5, 7) - 1;
     if (a === b) return d1 + ' ' + MONTHS[m1];
