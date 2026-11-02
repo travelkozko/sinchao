@@ -191,10 +191,17 @@ a{color:var(--ink-soft)}
 .chip{flex:none;height:40px;padding:0 14px;border:1.5px dashed var(--ink);border-radius:20px;background:transparent;font-family:Caveat,cursive;font-weight:700;font-size:21px;white-space:nowrap}
 .chip[aria-pressed="true"]{border-style:solid;background:var(--ink);color:var(--paper)}
 .pb-h{margin:18px 0 2px;font-family:Caveat,cursive;font-weight:700;font-size:28px;color:var(--clay)}
-.ph{width:100%;min-height:58px;border:0;border-bottom:1.5px dashed #8C8475;background:transparent;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;padding:8px 0;text-align:left}
-.ph b{font-size:18px;font-weight:600;line-height:1.25}
-.ph span{font-size:14px;color:var(--ink-soft)}
-.ph span i{color:var(--ink)}
+.ph{width:100%;display:flex;align-items:center;gap:10px;margin:10px 0;padding:12px 12px 12px 16px;border:2px solid var(--ink);border-radius:14px;background:var(--card);box-shadow:0 4px 0 var(--ink);text-align:left;color:var(--ink);transition:transform .07s,box-shadow .07s}
+.ph:active{transform:translateY(4px);box-shadow:0 0 0 var(--ink)}
+.ph .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ph .vi{font-size:21px;font-weight:600;line-height:1.2;word-wrap:break-word}
+.ph .tr{font-family:Caveat,cursive;font-weight:700;font-size:20px;line-height:1.1;color:var(--clay)}
+.ph .ru{font-size:14px;color:var(--ink-soft)}
+.ph .go{flex:none;display:flex;align-items:center;font-family:Caveat,cursive;font-weight:700;font-size:19px}
+.pb-tip{margin:6px 2px 4px;padding:10px 12px;background:var(--note);box-shadow:2px 3px 0 rgba(43,42,40,.18);transform:rotate(-.8deg);font-size:13px;line-height:1.45}
+.say-nav{display:flex;gap:8px}
+.say-nav button{flex:1;min-height:46px;padding:0 8px;border:2px solid var(--ink);border-radius:12px;background:var(--card);box-shadow:0 3px 0 var(--ink);font-size:14px;color:var(--ink);transition:transform .07s,box-shadow .07s}
+.say-nav button:active{transform:translateY(3px);box-shadow:0 0 0 var(--ink)}
 .pb-note{margin:18px 0 0;font-size:13px;font-style:italic;color:var(--ink-soft);line-height:1.45}
 .pb-sos{margin-top:14px;padding:12px 14px;background:var(--note);box-shadow:2px 3px 0 rgba(43,42,40,.18);transform:rotate(-.6deg);font-size:14px;line-height:1.45}
 .empty{margin-top:18px;font-style:italic;color:var(--ink-soft)}
@@ -464,7 +471,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611021333';
+  var BUILD = '202611022026';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -581,7 +588,15 @@ a{color:var(--ink-soft)}
     var a = e.target.closest('[data-act]');
     if (a && a.getAttribute('data-act') === 'home-screen') { haptic('light'); try { tg.addToHomeScreen(); } catch(err){} }
     if (a && a.getAttribute('data-act') === 'back') back();
-    if (a && a.getAttribute('data-act') === 'speak') { var t = stack[stack.length - 1]; var ph = ALL[+t.slice(4)]; if (ph) { haptic('light'); speak(ph[0]); } }
+    if (a && /^ph-(prev|next)$/.test(a.getAttribute('data-act'))) {    // соседняя фраза той же темы, без новых шагов «Назад»
+      var cur = +stack[stack.length - 1].slice(4), same = [];
+      ALL.forEach(function(p, i){ if (ALL[cur] && p[3] === ALL[cur][3]) same.push(i); });
+      if (same.length) { var k = same.indexOf(cur) + (a.getAttribute('data-act') === 'ph-next' ? 1 : -1);
+        haptic('light'); stack[stack.length - 1] = 'say:' + same[(k + same.length) % same.length]; render(); }
+    }
+    if (a && a.getAttribute('data-act') === 'ph-list') {
+      if (stack[stack.length - 2] === 'phrasebook') back(); else { haptic('light'); stack[stack.length - 1] = 'phrasebook'; render(); }
+    }
     var ch = e.target.closest('[data-cat]');
     if (ch) { haptic('light'); pbState.cat = ch.getAttribute('data-cat'); pbState.scroll = 0;
       Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(x){ x.setAttribute('aria-pressed', String(x === ch)); });
@@ -621,8 +636,9 @@ a{color:var(--ink-soft)}
         '<div class="chips" role="group" aria-label="Темы">' + cats.map(function(c){
           return '<button class="chip" type="button" data-cat="' + c.id + '" aria-pressed="' + (pbState.cat === c.id) + '">' + esc(c.title) + '</button>';
         }).join('') + '</div>' +
+        '<div class="pb-tip">Нажмите на фразу — она откроется крупно, чтобы показать собеседнику.</div>' +
         '<div id="pbList">' + pbListHtml() + '</div>' +
-        (PB ? '<div class="pb-sos">' + esc(PB.emergency) + '</div><p class="pb-note">' + esc(PB.note) + ' Нажмите на фразу, чтобы показать её крупно.</p>' : '');
+        (PB ? '<div class="pb-sos">' + esc(PB.emergency) + '</div><p class="pb-note">' + esc(PB.note) + '</p>' : '');
       body.innerHTML = html + fallbackBack;
       body.parentNode.scrollTop = pbState.scroll || 0;
       return;
@@ -740,10 +756,10 @@ a{color:var(--ink-soft)}
       var ph = ALL[+id.slice(4)];
       if (!ph) { html = '<p class="empty">Загружаем фразы…</p>'; }
       else {
-        var canSpeak = !!viVoice();
         html = '<div class="say"><div class="card"><div class="vi" lang="vi">' + esc(ph[0]) + '</div>' +
           '<div class="tr">«' + esc(ph[1]) + '»</div><div class="ru">' + esc(ph[2]) + '</div></div>' +
-          (canSpeak ? '<button class="speak" type="button" data-act="speak"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg>Послушать</button>' : '') +
+          '<div class="say-nav"><button type="button" data-act="ph-prev">← Предыдущая</button><button type="button" data-act="ph-next">Следующая →</button></div>' +
+          '<div class="say-nav"><button type="button" data-act="ph-list">К списку</button></div>' +
           '<div class="hint">покажите экран собеседнику</div></div>';
       }
     } else if (id === 'cities') {
@@ -916,7 +932,7 @@ a{color:var(--ink-soft)}
         if (p[3] !== c.id) return;
         if (q && norm(p[0] + ' ' + p[1] + ' ' + p[2]).indexOf(q) < 0) return;
         found++;
-        rows += '<button class="ph" type="button" data-go="say:' + i + '"><b>' + esc(p[0]) + '</b><span><i>«' + esc(p[1]) + '»</i> — ' + esc(p[2]) + '</span></button>';
+        rows += '<button class="ph" type="button" data-go="say:' + i + '"><span class="t"><span class="vi" lang="vi">' + esc(p[0]) + '</span><span class="tr">«' + esc(p[1]) + '»</span><span class="ru">' + esc(p[2]) + '</span></span><span class="go" aria-hidden="true">показать ›</span></button>';
       });
       if (rows) html += '<div class="pb-h">' + esc(c.title) + '</div>' + rows;
     });
