@@ -484,7 +484,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611022213';
+  var BUILD = '202611022229';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -535,7 +535,8 @@ a{color:var(--ink-soft)}
     window.open(url, '_blank', 'noopener');
   }
   // События предлагают в комментариях к закреплённому посту канала: там видно автора и можно уточнить детали.
-  var EVENTS_POST = 'https://t.me/sinchaoguide/3';   // закреплённый пост «Знаете событие в Нячанге?»
+  // События предлагают через бота: он по шагам спрашивает название, даты, место; заявка — в группу модерации.
+  var EVENTS_POST = 'https://t.me/SinChaoGuideBot?start=event';
 
   // ================= Заставка =================
   var loopV = $('loop'), logo = $('logo'), openBtn = $('open'), tapBtn = $('tap'), splash = $('splash');
@@ -811,7 +812,7 @@ a{color:var(--ink-soft)}
                  '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>';
         }).join('') +
         '<button class="row" type="button" data-go="suggest-place"><span class="t"><b>Предложить место</b><small>кафе, пляж или вид, который стоит показать</small></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>' +
-        '<button class="row" type="button" data-link="' + EVENTS_POST + '"><span class="t"><b>Предложить событие</b><small>в комментариях канала — концерт, ярмарка, праздник</small></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>' +
+        '<button class="row" type="button" data-link="' + EVENTS_POST + '"><span class="t"><b>Предложить событие</b><small>через бота — концерт, ярмарка, праздник</small></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>' +
         (homeScreenOk ? '<button class="row" type="button" data-act="home-screen"><span class="t"><b>На главный экран</b><small>значок гида рядом с другими приложениями</small></span></button>' : '') +
         '</div>';
     } else if (id === 'suggest-place') {
