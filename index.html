@@ -134,6 +134,10 @@ a{color:var(--ink-soft)}
   font-family:Caveat,cursive;font-weight:700;font-size:24px;white-space:nowrap;
 }
 .grid svg, .tabs svg, .row svg{flex:none}
+@media (max-width:374px){.grid{grid-template-columns:1fr}}   /* узкие телефоны: разделы списком, надписи не наезжают */
+@media (min-width:375px) and (max-width:411px){.grid{column-gap:10px}.grid button{gap:7px;font-size:22px}}   /* 375–411 px (большинство айфонов): чуть плотнее, чтобы «Разговорник» и «Практичное» влезали */
+.chan{display:flex;align-items:center;justify-content:center;gap:8px;margin:24px auto 4px;min-height:48px;padding:0 min(20px, 4.5vw);white-space:nowrap;border:1.5px solid var(--ink);border-radius:24px;background:var(--card);box-shadow:2px 3px 0 rgba(43,42,40,.15);font-family:Caveat,cursive;font-weight:700;font-size:min(23px, 6.4vw)}
+.chan svg{flex:none}
 
 .tabs{
   position:absolute;left:0;right:0;bottom:0;z-index:5;
@@ -418,6 +422,11 @@ a{color:var(--ink-soft)}
           Афиша
         </button>
       </nav>
+
+      <button class="chan" type="button" data-link="https://t.me/sinchaoguide">
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C0533A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4L3 11l6 2.5L11.5 20l3.5-4.5L19.5 19z"/><path d="M9 13.5L21 4"/></svg>
+        Наш канал в Telegram
+      </button>
     </div>
   </div>
 
@@ -455,7 +464,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611021218';
+  var BUILD = '202611021307';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -731,7 +740,6 @@ a{color:var(--ink-soft)}
         '<button class="row" type="button" data-go="suggest-place"><span class="t"><b>Предложить место</b><small>кафе, пляж или вид, который стоит показать</small></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>' +
         '<button class="row" type="button" data-link="' + EVENTS_POST + '"><span class="t"><b>Предложить событие</b><small>в комментариях канала — концерт, ярмарка, праздник</small></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>' +
         (homeScreenOk ? '<button class="row" type="button" data-act="home-screen"><span class="t"><b>На главный экран</b><small>значок гида рядом с другими приложениями</small></span></button>' : '') +
-        '<button class="row" type="button" data-link="https://t.me/sinchaoguide"><span class="t"><b>Канал «Синь Чао»</b><small>новые места и обновления гида</small></span></button>' +
         '</div>';
     } else if (id === 'suggest-place') {
       if (!sending) fmError = '';
