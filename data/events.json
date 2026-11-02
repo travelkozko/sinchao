@@ -108,6 +108,19 @@
       "titleVi": "Quốc tế Phụ nữ",
       "place": "По всему городу",
       "short": "Во Вьетнаме 8 Марта отмечают широко: цветы продают на каждом углу, в кафе — особые предложения."
+    },
+    {
+      "id": "community-c2-2026-11-03",
+      "title": "Роки ро",
+      "start": "2026-11-03",
+      "end": "2026-11-03",
+      "status": "community",
+      "community": true,
+      "place": "Набережная Нячанг",
+      "short": "Свободный вход с собой настроение",
+      "mapQuery": "Набережная Нячанг, Nha Trang",
+      "post": "https://t.me/sinchaoguide/5",
+      "photo": "media/events/community-06e9711e7c30.jpg"
     }
   ]
 }
