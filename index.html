@@ -464,7 +464,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611021315';
+  var BUILD = '202611021324';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -498,6 +498,10 @@ a{color:var(--ink-soft)}
         setTimeout(function(){
           document.removeEventListener('visibilitychange', mark); window.removeEventListener('blur', mark); window.removeEventListener('pagehide', mark);
           if (left) return;
+          // Гид открыт из канала и лежит поверх него — Telegram не открывает тот же канал повторно.
+          // Тогда просто закрываем гид: под ним и есть канал. (chat_type — тип чата, не данные человека.)
+          var from = tg.initDataUnsafe && tg.initDataUnsafe.chat_type;
+          if (from === 'channel' && /^https:\/\/t\.me\/sinchaoguide(\/|$)/.test(url)) { try { tg.close(); return; } catch(e){} }
           try { if (tg.exitFullscreen && tg.isFullscreen) tg.exitFullscreen(); } catch(e){}
           try { tg.openLink(url); } catch(e){ window.open(url, '_blank', 'noopener'); }
         }, 900);
