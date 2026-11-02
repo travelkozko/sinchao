@@ -464,7 +464,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611021307';
+  var BUILD = '202611021315';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -485,8 +485,24 @@ a{color:var(--ink-soft)}
   function $(id){ return document.getElementById(id); }
   function store(k, v){ try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch(e){ return null; } }
   function openLink(url){
+    haptic('light');
     try {
-      if (tg && tg.openTelegramLink && /^https:\/\/t\.me\//.test(url)) { tg.openTelegramLink(url); return; }   // каналы и посты — внутри Telegram
+      if (inTg && tg.openTelegramLink && /^https:\/\/t\.me\//.test(url)) {
+        // Каналы и посты — внутри Telegram. Некоторые клиенты (замечено в полноэкранном режиме) молча
+        // игнорируют этот вызов: если за 900 мс приложение не ушло на задний план, открываем запасным путём.
+        var left = false, mark = function(){ left = true; };
+        document.addEventListener('visibilitychange', mark, { once:true });
+        window.addEventListener('blur', mark, { once:true });
+        window.addEventListener('pagehide', mark, { once:true });
+        try { tg.openTelegramLink(url); } catch(e){ left = false; }
+        setTimeout(function(){
+          document.removeEventListener('visibilitychange', mark); window.removeEventListener('blur', mark); window.removeEventListener('pagehide', mark);
+          if (left) return;
+          try { if (tg.exitFullscreen && tg.isFullscreen) tg.exitFullscreen(); } catch(e){}
+          try { tg.openLink(url); } catch(e){ window.open(url, '_blank', 'noopener'); }
+        }, 900);
+        return;
+      }
       if (tg && tg.openLink) { tg.openLink(url); return; }
     } catch(e){}
     window.open(url, '_blank', 'noopener');
