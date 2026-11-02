@@ -1,5 +1,5 @@
 {
-  "checked": "1 ноября 2026",
+  "checked": "2 ноября 2026",
   "note": "Даты официальных мероприятий провинция часто объявляет за 1–3 недели. «Ожидается» — дата по прошлым годам или по предварительным планам; мы обновим её, как только выйдет официальное объявление.",
   "tet": {
     "title": "Тет — что важно знать",
@@ -12,6 +12,20 @@
     ]
   },
   "events": [
+    {
+      "id": "night-run-2026",
+      "start": "2026-12-12",
+      "end": "2026-12-12",
+      "status": "confirmed",
+      "title": "Ночной забег Nha Trang Night Run",
+      "titleVi": "Nha Trang Night Run Sanest, Sanvinest – BKH 2026",
+      "place": "Площадь 2 апреля (Quảng trường 2 tháng 4)",
+      "lat": 12.24055,
+      "lon": 109.19693,
+      "short": "Вечером 12 декабря более 4 000 бегунов пробегут 5, 10 и 21 км по набережной — по улицам Чан Фу и Фам Ван Донг. Старт и финиш на площади 2 апреля. Поболеть можно прямо у трассы на набережной.",
+      "source": "https://baokhanhhoa.vn/the-thao/nha-trang-night-run-sanest-savinest-bkh-2026/202610/hop-bao-cong-bo-thong-tin-giai-nha-trang-night-run-sanest-sanvinest-bkh-2026-3e15db1/",
+      "sourceName": "Báo Khánh Hòa"
+    },
     {
       "id": "christmas-2026",
       "start": "2026-12-24",
@@ -32,9 +46,9 @@
       "title": "Конкурс красоты Miss Cosmo 2026",
       "titleVi": "Miss Cosmo 2026",
       "place": "Нячанг и провинция Кханьхоа",
-      "short": "Международный конкурс красоты проходит в провинции почти месяц: показы и выезды участниц, карнавальные шествия. Финал — 16 января 2027 в Nha Trang World Tea Resort.",
-      "source": "https://english.vov.vn/en/culture/khanh-hoa-to-host-miss-cosmo-2026s-grand-finale-in-early-2027-post1313049.vov",
-      "sourceName": "VOV"
+      "short": "Более 90 участниц из разных стран 23 дня путешествуют по Вьетнаму: Хошимин, Тэйнинь, Камау, Кана, Ламдонг — и завершают тур в Нячанге. Финал с коронацией — 16 января 2027 на острове Чи Нгуен.",
+      "source": "https://www.vietnamplus.vn/miss-cosmo-2026-23-ngay-de-the-gioi-song-cung-viet-nam-post1131106.vnp",
+      "sourceName": "VietnamPlus"
     },
     {
       "id": "countdown-2027",
