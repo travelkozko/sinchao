@@ -484,7 +484,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611022140';
+  var BUILD = '202611022213';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -518,6 +518,9 @@ a{color:var(--ink-soft)}
         setTimeout(function(){
           document.removeEventListener('visibilitychange', mark); window.removeEventListener('blur', mark); window.removeEventListener('pagehide', mark);
           if (left) return;
+          // Ссылка на нашего же бота: Telegram отправляет боту /start (диалог уже начался), но экран
+          // не переключает, гид остаётся сверху. Закрываем гид — под ним чат бота или уведомление от него.
+          if (/^https:\/\/t\.me\/SinChaoGuideBot\?start=/i.test(url)) { try { tg.close(); return; } catch(e){} }
           // Гид открыт из канала и лежит поверх него — Telegram не открывает тот же канал повторно.
           // Тогда просто закрываем гид: под ним и есть канал. (chat_type — тип чата, не данные человека.)
           var from = tg.initDataUnsafe && tg.initDataUnsafe.chat_type;
