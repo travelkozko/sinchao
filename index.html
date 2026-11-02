@@ -314,6 +314,7 @@ a{color:var(--ink-soft)}
 .fm-send[disabled]{opacity:.6}
 .fm-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 .badge.comm{border-color:#5E7F3E;color:#4E6B32}
+.ev-ph{display:block;width:calc(100% + 28px);margin:10px -14px 0;height:auto;max-height:460px;object-fit:contain;background:#E8DFCC;border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
 .ev-acts button{min-height:40px;padding:6px 12px;border:1.5px dashed var(--ink);border-radius:8px;background:transparent;font-size:14px}
 </style>
 </head>
@@ -442,7 +443,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611012305';
+  var BUILD = '202611021015';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -673,6 +674,7 @@ a{color:var(--ink-soft)}
                 '<div class="ev-t">' + esc(x.title) + '</div>' + (x.titleVi ? '<div class="ev-vi" lang="vi">' + esc(x.titleVi) + '</div>' : '') +
                 (x.time ? '<div class="ev-vi">' + esc(x.time) + '</div>' : '') +
                 '<div class="ev-meta">' + now + badge + '<span>' + esc(x.place) + '</span></div>' +
+                (x.photo ? '<img class="ev-ph" src="' + esc(x.photo) + '" alt="' + esc(x.title) + ' — фото" loading="lazy" decoding="async" onerror="this.remove()">' : '') +
                 '<p class="ev-s">' + esc(x.short) + '</p>' +
                 ((mapUrl || x.source) ? '<div class="ev-acts">' + (mapUrl ? '<button type="button" data-link="' + esc(mapUrl) + '">На карте</button>' : '') +
                   (x.source ? '<button type="button" data-link="' + esc(x.source) + '">Источник: ' + esc(x.sourceName || 'ссылка') + ' ↗</button>' : '') + '</div>' : '') + '</div>';
@@ -1113,8 +1115,8 @@ a{color:var(--ink-soft)}
   // Про автора не отправляем ничего: ни данных Telegram, ни имени, ни контакта.
   var SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbzZsY39ZUP8MGJWScCSx_XszE65rs5_olDZRKcz4IpBbpicLli_vJWo8H6fZzterkB1/exec';
   var PLACE_CATS = ['еда','кофе','бар','рынок','смотреть','вид','пляж','развлечения','услуги'];
-  var MAX_PHOTOS = 3;
-  var draft = { place:{ photos:[] }, event:{} }, sending = false, fmError = '';
+  var MAX_PHOTOS = { place:3, event:1 };
+  var draft = { place:{ photos:[] }, event:{ photos:[] } }, sending = false, fmError = '', fmKind = 'place';
 
   function fIn(kind, key, label, opt, attrs){
     var v = draft[kind][key] || '';
@@ -1126,15 +1128,16 @@ a{color:var(--ink-soft)}
     return '<label class="fl" for="f-' + key + '">' + esc(label) + (opt ? ' <small>необязательно</small>' : '') + '</label>' + tag;
   }
   function photosHtml(){
-    var ph = draft.place.photos;
+    var ph = draft[fmKind].photos, max = MAX_PHOTOS[fmKind];
     return ph.map(function(src, i){
       return '<div class="th"><img src="' + src + '" alt="Фото ' + (i + 1) + '"><button type="button" data-act="fm-del-photo" data-i="' + i + '" aria-label="Убрать фото">' +
         '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>';
-    }).join('') + (ph.length < MAX_PHOTOS ? '<label class="add" id="fmAdd"><input type="file" accept="image/*" multiple id="fmFile" aria-label="Добавить фото">' +
+    }).join('') + (ph.length < max ? '<label class="add" id="fmAdd"><input type="file" accept="image/*"' + (max > 1 ? ' multiple' : '') + ' id="fmFile" aria-label="Добавить фото">' +
       '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B2A28" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>фото</label>' : '');
   }
   function formHtml(kind){
     var today = localDay(), d = draft[kind], h;
+    fmKind = kind;
     if (kind === 'place') {
       h = '<h2>Предложить место</h2><p>Знаете кафе, пляж или вид, который стоит показать другим? Расскажите — мы сходим, проверим и добавим на карту.</p>' +
         fIn('place', 'name', 'Название', false, { max:120, ph:'например, Кафе у моста' }) +
@@ -1143,7 +1146,7 @@ a{color:var(--ink-soft)}
         }).join('') + '</div>' +
         fIn('place', 'where', 'Где это', false, { max:300, ph:'адрес или ссылка на Google Карты' }) +
         fIn('place', 'about', 'Чем хорошо', false, { area:true, max:1000, ph:'что заказать, когда лучше прийти, сколько стоит' }) +
-        '<div class="fl">Фото <small>необязательно, до ' + MAX_PHOTOS + '</small></div><div class="fm-ph" id="fmPhotos">' + photosHtml() + '</div>';
+        '<div class="fl">Фото <small>необязательно, до ' + MAX_PHOTOS.place + '</small></div><div class="fm-ph" id="fmPhotos">' + photosHtml() + '</div>';
     } else {
       h = '<h2>Предложить событие</h2><p>Концерт, ярмарка, праздник или турнир в Нячанге — расскажите, и после проверки событие появится в афише.</p>' +
         fIn('event', 'title', 'Что за событие', false, { max:150, ph:'например, Ярмарка у собора' }) +
@@ -1152,14 +1155,15 @@ a{color:var(--ink-soft)}
         fIn('event', 'time', 'Во сколько', true, { max:60, ph:'например, с 19:00' }) +
         fIn('event', 'where', 'Где', false, { max:300, ph:'место, адрес или ссылка на Google Карты' }) +
         fIn('event', 'about', 'Коротко о событии', false, { area:true, max:1000, ph:'что будет, вход платный или свободный' }) +
-        fIn('event', 'link', 'Где об этом написано', true, { type:'url', max:500, ph:'ссылка на афишу или страницу организатора' });
+        fIn('event', 'link', 'Где об этом написано', true, { type:'url', max:500, ph:'ссылка на афишу или страницу организатора' }) +
+        '<div class="fl">Фото или афиша <small>необязательно, одно</small></div><div class="fm-ph" id="fmPhotos">' + photosHtml() + '</div>';
     }
     return '<div class="fm">' + h +
       '<input class="fm-hp" id="fmHp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">' +
       '<div class="fm-err" id="fmErr" role="alert"' + (fmError ? '' : ' hidden') + '>' + esc(fmError) + '</div>' +
       '<button class="fm-send" type="button" data-act="fm-send" data-k="' + kind + '"' + (sending ? ' disabled' : '') + '>' + (sending ? 'Отправляем…' : 'Отправить') + '</button>' +
       '<p class="pb-note">Мы не знаем и не сохраняем, кто прислал заявку. Пожалуйста, не пишите в ней имена и телефоны.' +
-        (kind === 'place' ? ' Фото уменьшаются прямо на телефоне, при этом стираются координаты съёмки и модель телефона. Присылайте только свои снимки: отправляя фото, вы разрешаете показать его в гиде.' : '') + '</p></div>';
+        (' Фото уменьшаются прямо на телефоне, при этом стираются координаты съёмки и модель телефона. Присылайте только свои снимки: отправляя фото, вы разрешаете показать его в гиде.') + '</p></div>';
   }
   function fmShowError(t){ fmError = t; var e = $('fmErr'); if (e) { e.textContent = t; e.hidden = !t; if (t) e.scrollIntoView({ block:'center', behavior:'smooth' }); } }
   function checkForm(kind, d){
@@ -1206,7 +1210,7 @@ a{color:var(--ink-soft)}
     if (!SUBMIT_URL) { fmShowError('Приём заявок ещё настраивается — попробуйте чуть позже.'); return; }
     var fields = kind === 'place' ? ['name','cat','where','about'] : ['title','start','end','time','where','about','link'], data = {};
     fields.forEach(function(k){ data[k] = String(d[k] || '').trim(); });
-    var payload = { kind:kind, hp:($('fmHp') || {}).value || '', build:BUILD, city:CITY.id, data:data, photos:kind === 'place' ? d.photos : [] };
+    var payload = { kind:kind, hp:($('fmHp') || {}).value || '', build:BUILD, city:CITY.id, data:data, photos:d.photos || [] };
     sending = true; fmShowError(''); haptic('medium');
     var btn = document.querySelector('[data-act="fm-send"]'); if (btn) { btn.disabled = true; btn.textContent = 'Отправляем…'; }
     var ctrl = window.AbortController ? new AbortController() : null, t = setTimeout(function(){ if (ctrl) ctrl.abort(); }, 45000);
@@ -1216,7 +1220,7 @@ a{color:var(--ink-soft)}
         clearTimeout(t); sending = false;
         if (!r || !r.ok) throw new Error((r && r.error) || 'server');
         store('sc_sent_at', Date.now());
-        draft[kind] = kind === 'place' ? { photos:[] } : {};
+        draft[kind] = { photos:[] };
         try { if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success'); } catch(e){}
         if (stack[stack.length - 1] === 'suggest-' + kind) { stack[stack.length - 1] = 'sent:' + kind; render(); }
       })
@@ -1233,13 +1237,14 @@ a{color:var(--ink-soft)}
   });
   document.addEventListener('change', function(e){
     if (e.target.id !== 'fmFile') return;
-    var files = Array.prototype.slice.call(e.target.files || []), room = MAX_PHOTOS - draft.place.photos.length;
+    var ph = draft[fmKind].photos, max = MAX_PHOTOS[fmKind];
+    var files = Array.prototype.slice.call(e.target.files || []), room = max - ph.length;
     e.target.value = '';
     if (!files.length) return;
-    if (files.length > room) fmShowError('Можно добавить не больше ' + MAX_PHOTOS + ' фото — лишние не взяли.');
+    if (files.length > room) fmShowError(max === 1 ? 'Можно добавить одно фото — взяли первое.' : 'Можно добавить не больше ' + max + ' фото — лишние не взяли.');
     var add = $('fmAdd'); if (add) add.classList.add('busy');
     files.slice(0, room).reduce(function(p, file){
-      return p.then(function(){ return shrinkPhoto(file).then(function(src){ draft.place.photos.push(src); },
+      return p.then(function(){ return shrinkPhoto(file).then(function(src){ ph.push(src); },
         function(){ fmShowError('Одно фото не открылось — попробуйте снимок в JPG или PNG.'); }); });
     }, Promise.resolve()).then(function(){ var box = $('fmPhotos'); if (box) box.innerHTML = photosHtml(); });
   });
@@ -1250,7 +1255,7 @@ a{color:var(--ink-soft)}
       haptic('light'); draft.place.cat = a.getAttribute('data-c'); if (fmError) fmShowError('');
       Array.prototype.forEach.call(a.parentNode.children, function(x){ x.setAttribute('aria-pressed', String(x === a)); });
     }
-    if (act === 'fm-del-photo') { haptic('light'); draft.place.photos.splice(+a.getAttribute('data-i'), 1); $('fmPhotos').innerHTML = photosHtml(); }
+    if (act === 'fm-del-photo') { haptic('light'); draft[fmKind].photos.splice(+a.getAttribute('data-i'), 1); $('fmPhotos').innerHTML = photosHtml(); }
     if (act === 'fm-send') sendForm(a.getAttribute('data-k'));
   });
 
