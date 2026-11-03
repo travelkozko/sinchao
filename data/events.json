@@ -108,34 +108,6 @@
       "titleVi": "Quốc tế Phụ nữ",
       "place": "По всему городу",
       "short": "Во Вьетнаме 8 Марта отмечают широко: цветы продают на каждом углу, в кафе — особые предложения."
-    },
-    {
-      "id": "community-c2-2026-11-03",
-      "title": "Роки рок",
-      "start": "2026-11-03",
-      "end": "2026-11-03",
-      "status": "community",
-      "community": true,
-      "place": "Trần Phú, Nha Trang, Khánh Hòa 650000, Вьетнам",
-      "short": "Музыкальный фестиваль",
-      "time": "15:00",
-      "mapQuery": "Trần Phú, Nha Trang, Khánh Hòa 650000, Вьетнам, Nha Trang",
-      "post": "https://t.me/sinchaoguide/6",
-      "photo": "media/events/community-d3b4b42222e2.jpg"
-    },
-    {
-      "id": "community-c3-2026-11-03",
-      "title": "Проверка",
-      "start": "2026-11-03",
-      "end": "2026-11-03",
-      "status": "community",
-      "community": true,
-      "place": "Набережная",
-      "short": "Свободный вход Муз фест",
-      "time": "19:00",
-      "mapQuery": "Набережная, Nha Trang",
-      "post": "https://t.me/sinchaoguide/7",
-      "photo": "media/events/community-4cfbe3d1a0d7.jpg"
     }
   ]
 }
