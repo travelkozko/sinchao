@@ -492,7 +492,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611022326';
+  var BUILD = '202611031001';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -1579,6 +1579,17 @@ a{color:var(--ink-soft)}
         '<input type="date" id="evDate" min="' + today + '" value="' + picked + '" aria-label="Выбрать дату"></label></div>';
   }
   var posterSrc = '', evScroll = 0;
+  // пометка в день события по времени Нячанга: до начала — «сегодня в 15:00», после — «идёт сейчас»,
+  // после окончания (если оно указано) — без пометки; без времени — просто «сегодня»
+  function evNowBadge(x){
+    var m = /(\d{1,2}):(\d{2})(?:\s*[–-]\s*(\d{1,2}):(\d{2}))?/.exec(x.time || '');
+    if (!m) return '<span class="badge trav">сегодня</span>';
+    var hm; try { hm = new Intl.DateTimeFormat('en-GB', { timeZone:CITY.tz, hour:'2-digit', minute:'2-digit', hourCycle:'h23' }).format(new Date()); } catch(e){ hm = ''; }
+    var start = ('0' + m[1]).slice(-2) + ':' + m[2], end = m[3] ? ('0' + m[3]).slice(-2) + ':' + m[4] : '';
+    if (!hm || hm < start) return '<span class="badge trav">сегодня в ' + start + '</span>';
+    if (end && end > start && hm > end) return '';
+    return '<span class="badge trav">идёт сейчас</span>';
+  }
   // Афиша целиком — слой прямо в <body>, а не внутри прокручиваемой страницы: на iOS position:fixed
   // внутри контейнера с прокруткой привязывается к нему и обрезается по краям.
   function syncPoster(top){
@@ -1592,7 +1603,7 @@ a{color:var(--ink-soft)}
     var today = localDay();
     var badge = { confirmed:'<span class="badge">подтверждено</span>', expected:'<span class="badge stale">ожидается</span>', tradition:'<span class="badge open">каждый год</span>',
                   community:'<span class="badge comm">от сообщества</span>' }[x.status] || '';
-    var now = x.start <= today && x.end >= today ? '<span class="badge trav">идёт сейчас</span>' : '';
+    var now = x.start <= today && x.end >= today ? evNowBadge(x) : '';
     var mapUrl = x.mapLink ? x.mapLink : x.lat ? 'https://www.google.com/maps/search/?api=1&query=' + x.lat + ',' + x.lon : (x.mapQuery ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(x.mapQuery) : '');
     var post = /^https:\/\/t\.me\//.test(x.post || '') ? x.post : '';
     var head = '<div class="ev-date">' + esc(dateRange(x.start, x.end)) + '</div>' +
