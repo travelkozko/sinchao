@@ -492,7 +492,7 @@ a{color:var(--ink-soft)}
 <script>
 (function(){
   var B = '?b=202611011700';
-  var BUILD = '202611031001';
+  var BUILD = '202611031017';
   var CITY = { id:'nha-trang', name:'Нячанг', lat:12.2388, lon:109.1967, seaLat:12.24, seaLon:109.22, tz:'Asia/Ho_Chi_Minh' };
 
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -775,9 +775,10 @@ a{color:var(--ink-soft)}
           .catch(function(){ if (stack[stack.length - 1] === 'events') $('pageBody').innerHTML = '<h2>Афиша</h2><p class="empty">Нет связи. Откройте раздел, когда появится интернет.</p>' + fallbackBack; });
       } else {
         var today = localDay(), rng = evRange(evFilter, today);
-        var all = EV.events.filter(function(x){ return x.end >= today; }).sort(function(a, b){ return a.start < b.start ? -1 : a.start > b.start ? 1 : 0; });
+        var all = EV.events.filter(function(x){ return x.end >= today && evPhase(x, today) !== 'over'; }).sort(function(a, b){ return a.start < b.start ? -1 : a.start > b.start ? 1 : 0; });
         var list = all.filter(function(x){ return x.start <= rng[1] && x.end >= rng[0]; });   // событие идёт хотя бы в один из выбранных дней
-        var ongoing = list.filter(function(x){ return x.start <= today; }), upcoming = list.filter(function(x){ return x.start > today; });
+        var ongoing = list.filter(function(x){ return evPhase(x, today) === 'now'; }), later = list.filter(function(x){ return evPhase(x, today) === 'later'; });
+        var upcoming = list.filter(function(x){ return x.start > today; });
         var byMonth = {}, months = [];
         upcoming.forEach(function(x){ var m = x.start.slice(0, 7); if (!byMonth[m]) { byMonth[m] = []; months.push(m); } byMonth[m].push(x); });
         var nearest = list.length ? null : all.filter(function(x){ return x.start > rng[1]; })[0];
@@ -787,6 +788,7 @@ a{color:var(--ink-soft)}
             EV.tet.items.map(function(t){ return '<li>' + rich(t) + '</li>'; }).join('') + '</ul></details>' : '') +
           evChipsHtml(today) +
           (ongoing.length ? '<div class="fd-h">Идёт сейчас</div>' + ongoing.map(evCard).join('') : '') +
+          (later.length ? '<div class="fd-h">Сегодня позже</div>' + later.map(evCard).join('') : '') +
           months.map(function(m){ return '<div class="fd-h">' + esc(monthName(m)) + '</div>' + byMonth[m].map(evCard).join(''); }).join('') +
           (list.length ? '' : !all.length ? '<p class="empty">Ближайших событий пока нет — загляните позже.</p>' :
             '<p class="ev-empty">На эти дни событий нет.' + (nearest ? ' Ближайшее:' : '') + '</p>' + (nearest ? evCard(nearest) : '')) +
@@ -1579,16 +1581,25 @@ a{color:var(--ink-soft)}
         '<input type="date" id="evDate" min="' + today + '" value="' + picked + '" aria-label="Выбрать дату"></label></div>';
   }
   var posterSrc = '', evScroll = 0;
-  // пометка в день события по времени Нячанга: до начала — «сегодня в 15:00», после — «идёт сейчас»,
-  // после окончания (если оно указано) — без пометки; без времени — просто «сегодня»
-  function evNowBadge(x){
-    var m = /(\d{1,2}):(\d{2})(?:\s*[–-]\s*(\d{1,2}):(\d{2}))?/.exec(x.time || '');
-    if (!m) return '<span class="badge trav">сегодня</span>';
-    var hm; try { hm = new Intl.DateTimeFormat('en-GB', { timeZone:CITY.tz, hour:'2-digit', minute:'2-digit', hourCycle:'h23' }).format(new Date()); } catch(e){ hm = ''; }
+  // Где событие сейчас по времени Нячанга: 'future' — в другой день; 'later' — сегодня, ещё не началось;
+  // 'now' — началось (многодневное, начавшееся раньше, или без времени — тоже сюда); 'over' — сегодня последний
+  // день и указанное время окончания прошло (такие из афиши убираем).
+  function nowHM(){ try { return new Intl.DateTimeFormat('en-GB', { timeZone:CITY.tz, hour:'2-digit', minute:'2-digit', hourCycle:'h23' }).format(new Date()); } catch(e){ return ''; } }
+  function evPhase(x, today){
+    if (x.start > today) return 'future';
+    var m = /(\d{1,2}):(\d{2})(?:\s*[–-]\s*(\d{1,2}):(\d{2}))?/.exec(x.time || ''), hm = nowHM();
+    if (!m || !hm) return 'now';
     var start = ('0' + m[1]).slice(-2) + ':' + m[2], end = m[3] ? ('0' + m[3]).slice(-2) + ':' + m[4] : '';
-    if (!hm || hm < start) return '<span class="badge trav">сегодня в ' + start + '</span>';
-    if (end && end > start && hm > end) return '';
-    return '<span class="badge trav">идёт сейчас</span>';
+    if (x.end === today && end && end > start && hm > end) return 'over';
+    if (x.start === today && hm < start) return 'later';
+    return 'now';
+  }
+  // пометка на карточке совпадает с заголовком группы
+  function evNowBadge(x){
+    var ph = evPhase(x, localDay());
+    if (ph === 'later') return '<span class="badge trav">сегодня в ' + (/\d{1,2}:\d{2}/.exec(x.time) || [''])[0].replace(/^(\d):/, '0$1:') + '</span>';
+    if (ph === 'now') return '<span class="badge trav">' + (x.time || x.start < localDay() ? 'идёт сейчас' : 'сегодня') + '</span>';
+    return '';
   }
   // Афиша целиком — слой прямо в <body>, а не внутри прокручиваемой страницы: на iOS position:fixed
   // внутри контейнера с прокруткой привязывается к нему и обрезается по краям.
